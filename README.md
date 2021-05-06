@@ -27,7 +27,7 @@ Or you can install it from source repository:
 ```bash
 git clone https://github.com/huffon/factsumm
 cd factsumm
-pip install factsumm
+pip install .
 ```
 
 <br>
@@ -44,10 +44,25 @@ pip install factsumm
 
 <br>
 
-## TODO
+## Sub-modules
 
-- [ ] Add Question-based score module
-- [ ] Add NLI-based score module
+From [this](https://arxiv.org/pdf/2104.14839.pdf), we can find various way to score Factual Consistency level with Unsupervised methods
+
+<br>
+
+### Triple-based Factual Consistency
+
+count the fact overlap between generated summary and the source document
+
+not combination, but permutation
+
+<br>
+
+### QA-based Factual Consistency
+
+![](assets/qa.png)
+
+if we ask questions about a summary and its source document, we will receive similar answers if the summary is factually consistent with the source document
 
 <br>
 

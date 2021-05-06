@@ -8,6 +8,7 @@ def load_qg(model: str):
     model = AutoModelForSeq2SeqLM.from_pretrained(model)
 
     def generate_question():
+        # See also https://github.com/AMontgomerie/question_generator
         pass
 
     return generate_question
