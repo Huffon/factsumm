@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+
 requirements = [
     "transformers",
     "pysbd",
@@ -26,7 +27,7 @@ setup(
     ],
     url="https://github.com/huffon/factsumm",
     author="Hoon Heo",
-    license="MIT",
+    license="Apache 2.0",
     packages=find_packages(include=["factsumm", "factsumm.*"]),
     install_requires=requirements,
     python_requires=">=3.6.0",
