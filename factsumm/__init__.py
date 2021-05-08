@@ -100,15 +100,7 @@ class FactSumm:
         print(f"Diff Facts {diff_facts}\n")
 
         source_qas = self.qg(source_lines, source_ents)
-        summary_qas = self.qg(summary_lines, summary_lines)
+        summary_qas = self.qg(summary_lines, summary_ents)
 
         self.qa(source, source_qas)
         self.qa(summary, summary_qas)
-
-
-if __name__ == "__main__":
-    scorer = FactSumm()
-    scorer(
-        "Steven Paul Jobs was an American business magnate, industrial designer, investor, and media proprietor. He was the chairman, chief executive officer, and co-founder of Apple Inc.; the chairman and majority shareholder of Pixar; a member of The Walt Disney Company's board of directors following its acquisition of Pixar; and the founder, chairman, and CEO of NeXT. Jobs is widely recognized as a pioneer of the personal computer revolution of the 1970s and 1980s, along with his early business partner and fellow Apple co-founder Steve Wozniak.",
-        "The Avengers is directed by Chris Evans.",
-    )
