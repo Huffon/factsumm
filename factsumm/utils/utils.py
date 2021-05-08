@@ -9,7 +9,7 @@ class Config:
     NER_MODEL: str = "elastic/distilbert-base-cased-finetuned-conll03-english"
     REL_MODEL: str = "studio-ousia/luke-large-finetuned-tacred"
     QG_MODEL: str = "mrm8488/t5-base-finetuned-question-generation-ap"
-    QA_MODEL: str = "distilbert-base-uncased-distilled-squad"
+    QA_MODEL: str = "deepset/roberta-base-squad2"
     SUMM_MODEL: str = "sshleifer/distilbart-cnn-12-6"
 
 
