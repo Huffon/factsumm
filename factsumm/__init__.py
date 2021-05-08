@@ -1,6 +1,6 @@
 import logging
 from itertools import permutations
-from typing import Dict, List, Union
+from typing import Dict, List, Set, Tuple, Union
 
 import pysbd
 from factsumm.utils.level_entity import load_ner, load_rel
@@ -75,6 +75,28 @@ class FactSumm:
     def _segment(self, text: str):
         return [line.strip() for line in self.segmenter.segment(text)]
 
+    def _print_entities(self, mode: str, total_entities: List[List[Dict]]):
+        print(f"{mode.upper()} Entities")
+        for i, line_entities in enumerate(total_entities):
+            print(
+                f'{i+1}: {[(entity["word"], entity["entity"]) for entity in line_entities]}'
+            )
+        print()
+
+    def _print_facts(self, mode: str, facts: Set[Tuple]):
+        print(f"{mode.upper()} Facts")
+        for fact in facts:
+            print(fact)
+        print()
+
+    def _print_qas(self, mode: str, questions: List[Dict]):
+        print(f"{mode.upper()} Questions")
+        for question in questions:
+            print(
+                f"[Q] {question['question']}\t[A] {question['answer']}\t[Pred] {question['prediction']['answer']}"
+            )
+        print()
+
     def __call__(self, source: str, summary: str):
         source_lines = self._segment(source)
         summary_lines = self._segment(summary)
@@ -83,8 +105,8 @@ class FactSumm:
         source_ents = self.ner(source_lines)
         summary_ents = self.ner(summary_lines)
 
-        print(f"[DOC] Document Entities {source_ents}")
-        print(f"[SUM] Summary Entities {summary_ents}\n")
+        self._print_entities("source", source_ents)
+        self._print_entities("summary", summary_ents)
 
         # extract entity-based triple: (head, relation, tail)
         source_facts = self.count_facts(source_lines, source_ents)
@@ -93,14 +115,17 @@ class FactSumm:
         common_facts = summary_facts.intersection(source_facts)
         diff_facts = summary_facts.difference(source_facts)
 
-        print(f"[DOC] Document Facts {source_facts}")
-        print(f"[SUM] Summary Facts {summary_facts}\n")
+        self._print_facts("source", source_facts)
+        self._print_facts("summary", summary_facts)
 
-        print(f"Common Facts {common_facts}")
-        print(f"Diff Facts {diff_facts}\n")
+        self._print_facts("common", common_facts)
+        self._print_facts("diff", diff_facts)
 
         source_qas = self.qg(source_lines, source_ents)
         summary_qas = self.qg(summary_lines, summary_ents)
 
-        self.qa(source, source_qas)
-        self.qa(summary, summary_qas)
+        source_answers = self.qa(source, source_qas)
+        summary_answers = self.qa(summary, summary_qas)
+
+        self._print_qas("source", source_answers)
+        self._print_qas("summary", summary_answers)
