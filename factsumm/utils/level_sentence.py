@@ -33,9 +33,6 @@ def load_qg(model: str):
         """
         qa_pairs = list()
 
-        if isinstance(total_entities[0], dict):
-            total_entities = [total_entities]
-
         for sentence, line_entities in zip(sentences, total_entities):
             for entity in line_entities:
                 entity = entity['word']

@@ -33,8 +33,8 @@ class FactSumm:
         self.ner = load_ner(ner)
         self.rel = load_rel(rel)
 
-        self.qg = load_qg(qg)
-        self.qa = load_qa(qa)
+        # self.qg = load_qg(qg)
+        # self.qa = load_qa(qa)
 
     def build_comb(
         self,
@@ -42,9 +42,6 @@ class FactSumm:
         total_entities: Union[List[Dict], List[List[Dict]]],
     ):
         total_combs = list()
-
-        if isinstance(total_entities[0], dict):
-            total_entities = [total_entities]
 
         for line, line_entities in zip(lines, total_entities):
             line_combs = list(permutations(line_entities, 2))
@@ -93,14 +90,14 @@ class FactSumm:
         common_facts = summary_facts.intersection(source_facts)
         diff_facts = summary_facts.difference(source_facts)
 
-        print(f"[DOC] Document Facts {source_facts}")
-        print(f"[SUM] Summary Facts {summary_facts}\n")
+        # print(f"[DOC] Document Facts {source_facts}")
+        # print(f"[SUM] Summary Facts {summary_facts}\n")
 
-        print(f"Common Facts {common_facts}")
-        print(f"Diff Facts {diff_facts}\n")
+        # print(f"Common Facts {common_facts}")
+        # print(f"Diff Facts {diff_facts}\n")
 
-        source_qas = self.qg(source_lines, source_ents)
-        summary_qas = self.qg(summary_lines, summary_ents)
+        # source_qas = self.qg(source_lines, source_ents)
+        # summary_qas = self.qg(summary_lines, summary_ents)
 
-        self.qa(source, source_qas)
-        self.qa(summary, summary_qas)
+        # self.qa(source, source_qas)
+        # self.qa(summary, summary_qas)
