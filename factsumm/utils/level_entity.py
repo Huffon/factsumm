@@ -74,7 +74,6 @@ def load_rel(model: str):
 
         # TODO: batchify
         for sentence in sentences:
-            print(sentence["text"])
             tokens = tokenizer(
                 sentence["text"],
                 entity_spans=[
