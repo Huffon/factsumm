@@ -1,6 +1,4 @@
-from collections import namedtuple
 from dataclasses import dataclass
-from typing import Tuple
 
 from transformers import pipeline
 
@@ -9,7 +7,8 @@ from transformers import pipeline
 class Config:
     NER_MODEL: str = "elastic/distilbert-base-cased-finetuned-conll03-english"
     REL_MODEL: str = "studio-ousia/luke-large-finetuned-tacred"
-    QG_MODEL: str = "iarfmoose/t5-base-question-generator"
+    QG_MODEL: str = "mrm8488/t5-base-finetuned-question-generation-ap"
+    QA_MODEL: str = "distilbert-base-uncased-distilled-squad"
     SUMM_MODEL: str = "sshleifer/distilbart-cnn-12-6"
 
 

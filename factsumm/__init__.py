@@ -5,7 +5,7 @@ import pysbd
 from rich import print
 
 from factsumm.utils.level_entity import load_ner, load_rel
-from factsumm.utils.level_sentence import load_qg
+from factsumm.utils.level_sentence import load_qa, load_qg
 from factsumm.utils.utils import Config
 
 
@@ -16,6 +16,7 @@ class FactSumm:
         ner_model: str = None,
         rel_model: str = None,
         qg_model: str = None,
+        qa_model: str = None,
     ):
         self.config = Config()
         self.segmenter = pysbd.Segmenter(language="en", clean=False)
@@ -24,11 +25,14 @@ class FactSumm:
         ner = ner_model if ner_model is not None else self.config.NER_MODEL
         rel = rel_model if rel_model is not None else self.config.REL_MODEL
         qg = qg_model if qg_model is not None else self.config.QG_MODEL
+        qa = qa_model if qa_model is not None else self.config.QA_MODEL
 
         # Load required pipes
         self.ner = load_ner(ner)
         self.rel = load_rel(rel)
+
         self.qg = load_qg(qg)
+        self.qa = load_qa(qa)
 
     def build_comb(
         self,
@@ -93,13 +97,16 @@ class FactSumm:
         print(f"Common Facts {common_facts}")
         print(f"Diff Facts {diff_facts}\n")
 
-        # source_questions = self.qg(source)
-        # summary_questions = self.qg(summary)
+        source_qas = self.qg(source_lines, source_ents)
+        summary_qas = self.qg(summary_lines, summary_lines)
+
+        self.qa(source, source_qas)
+        self.qa(summary, summary_qas)
 
 
 if __name__ == "__main__":
     scorer = FactSumm()
     scorer(
-        "Inception is a science fiction film directed by Nolan and starring Leonardo.",
-        "Leonardo directed the action film Inception.",
+        "Steven Paul Jobs was an American business magnate, industrial designer, investor, and media proprietor. He was the chairman, chief executive officer, and co-founder of Apple Inc.; the chairman and majority shareholder of Pixar; a member of The Walt Disney Company's board of directors following its acquisition of Pixar; and the founder, chairman, and CEO of NeXT. Jobs is widely recognized as a pioneer of the personal computer revolution of the 1970s and 1980s, along with his early business partner and fellow Apple co-founder Steve Wozniak.",
+        "The Avengers is directed by Chris Evans.",
     )
