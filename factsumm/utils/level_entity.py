@@ -2,6 +2,8 @@ from typing import List, Tuple
 
 from transformers import LukeForEntityPairClassification, LukeTokenizer, pipeline
 
+from factsumm.utils.utils import grouped_entities
+
 
 def load_ner(model: str) -> object:
     """
@@ -16,13 +18,27 @@ def load_ner(model: str) -> object:
     """
     print("Loading Named Entity Recognition Pipeline...")
 
-    return pipeline(
+    ner = pipeline(
         task="ner",
         model=model,
         tokenizer=model,
+        ignore_labels=[],
         framework="pt",
-        grouped_entities=True,
     )
+
+    def extract_entities(sentences: List[str]):
+        result = list()
+        total_entities = ner(sentences)
+
+        if isinstance(total_entities[0], dict):
+            total_entities = [total_entities]
+
+        for line_entities in total_entities:
+            result.append(list(set(grouped_entities(line_entities))))
+
+        return result
+
+    return extract_entities
 
 
 def load_rel(model: str):
