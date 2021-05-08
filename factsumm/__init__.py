@@ -72,9 +72,12 @@ class FactSumm:
     def count_question(self):
         pass
 
+    def _segment(self, text: str):
+        return [line.strip() for line in self.segmenter.segment(text)]
+
     def __call__(self, source: str, summary: str):
-        source_lines = self.segmenter.segment(source)
-        summary_lines = self.segmenter.segment(summary)
+        source_lines = self._segment(source)
+        summary_lines = self._segment(summary)
 
         # extract per-line entities
         source_ents = self.ner(source_lines)
@@ -90,8 +93,8 @@ class FactSumm:
         common_facts = summary_facts.intersection(source_facts)
         diff_facts = summary_facts.difference(source_facts)
 
-        # print(f"[DOC] Document Facts {source_facts}")
-        # print(f"[SUM] Summary Facts {summary_facts}\n")
+        print(f"[DOC] Document Facts {source_facts}")
+        print(f"[SUM] Summary Facts {summary_facts}\n")
 
         # print(f"Common Facts {common_facts}")
         # print(f"Diff Facts {diff_facts}\n")

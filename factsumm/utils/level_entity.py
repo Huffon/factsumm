@@ -34,7 +34,7 @@ def load_ner(model: str) -> object:
             total_entities = [total_entities]
 
         for line_entities in total_entities:
-            result.append(list(set(grouped_entities(line_entities))))
+            result.append(grouped_entities(line_entities))
 
         return result
 
@@ -72,7 +72,9 @@ def load_rel(model: str):
         """
         triples = list()
 
+        # TODO: batchify
         for sentence in sentences:
+            print(sentence["text"])
             tokens = tokenizer(
                 sentence["text"],
                 entity_spans=[
