@@ -95,17 +95,15 @@ def load_qa(model: str):
         """
         answers = list()
         for qa_pair in qa_pairs:
+            pred = qa(
+                question=qa_pair["question"],
+                context=context,
+                handle_impossible_answer=True,
+            )["answer"]
             answers.append({
-                "question":
-                    qa_pair["question"],
-                "answer":
-                    qa_pair["answer"],
-                "prediction":
-                    qa(
-                        question=qa_pair["question"],
-                        context=context,
-                        handle_impossible_answer=True,
-                    )
+                "question": qa_pair["question"],
+                "answer": qa_pair["answer"],
+                "prediction": pred if pred != "" else "<unanswerable>"
             })
         return answers
 

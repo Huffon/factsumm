@@ -93,7 +93,7 @@ class FactSumm:
         print(f"{mode.upper()} Questions")
         for question in questions:
             print(
-                f"[Q] {question['question']}\t[A] {question['answer']}\t[Pred] {question['prediction']['answer']}"
+                f"[Q] {question['question']}\t[A] {question['answer']}\t[Pred] {question['prediction']}"
             )
         print()
 
@@ -126,6 +126,8 @@ class FactSumm:
 
         source_answers = self.qa(source, source_qas)
         summary_answers = self.qa(summary, summary_qas)
+        diff_answers = self.qa(summary, source_qas)
 
         self._print_qas("source", source_answers)
         self._print_qas("summary", summary_answers)
+        self._print_qas("diff", diff_answers)
