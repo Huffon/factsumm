@@ -40,6 +40,7 @@ pip install .
 >>> article = "Superman is a fictional superhero who first appeared in American comic books published by DC Comics. The character was created by writer Jerry Siegel and artist Joe Shuster, and first appeared in the comic book Action Comics #1. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre. Although Superman was not the first superhero character, he popularized the superhero archetype and established its conventions. Superheroes are usually judged by how closely they resemble the standard set by Superman. He was the best-selling superhero character in American comic books up until the 1980s."
 >>> summary = "Superman is a fictional superhero who first appeared in American comic books published by Marvel Comics. The character was created by writer Jerry Siegel and artist Joe Shuster. He popularized the superhero archetype and established its conventions. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre."
 >>> factsumm(article, summary) 
+SOURCE Entities
 1: [('Superman', 'PER'), ('American', 'MISC'), ('DC Comics', 'ORG')]
 2: [('Jerry Siegel', 'PER'), ('Joe Shuster', 'PER'), ('Action Comics', 'MISC')]
 3: [('Superman', 'PER')]
@@ -81,12 +82,12 @@ SOURCE Questions
 [Q] In what country did Superman first appear?  [A] American    [Pred] American
 [Q] What company published Superman comics?     [A] DC Comics   [Pred] DC Comics
 [Q] Who created the character?  [A] Jerry Siegel        [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character of the 'Action Comics'?   [A] Joe Shuster [Pred] Jerry Siegel and artist Joe Shuster
+[Q] Who created the character of the 'Action Comics'?   [A] Joe Shuster [Pred] <unanswerable>
 [Q] What comic book did the character first appear in?  [A] Action Comics       [Pred] Action Comics #1
 [Q] What superhero has been adapted to a number of other media? [A] Superman    [Pred] Superman
-[Q] What was the name of the first superhero?   [A] Superman    [Pred] Superman
+[Q] What was the name of the first superhero?   [A] Superman    [Pred] <unanswerable>
 [Q] Whose standard is a super hero compared to? [A] Superman    [Pred] Superman
-[Q] What nationality was the character of the main character?   [A] American    [Pred] American
+[Q] What nationality was the character of the main character?   [A] American    [Pred] <unanswerable>
 
 SUMMARY Questions
 [Q] What is the name of the fictional superhero that first appeared in comic books?     [A] Superman    [Pred] Superman
@@ -95,6 +96,18 @@ SUMMARY Questions
 [Q] Who created the character?  [A] Jerry Siegel        [Pred] Jerry Siegel and artist Joe Shuster
 [Q] Who created the character?  [A] Joe Shuster [Pred] Jerry Siegel and artist Joe Shuster
 [Q] What superhero has been adapted to a number of other media? [A] Superman    [Pred] Superman
+
+DIFF Questions
+[Q] What is the name of the fictional superhero that first appeared in comic books?     [A] Superman    [Pred] Superman
+[Q] In what country did Superman first appear?  [A] American    [Pred] American
+[Q] What company published Superman comics?     [A] DC Comics   [Pred] Marvel Comics
+[Q] Who created the character?  [A] Jerry Siegel        [Pred] Jerry Siegel and artist Joe Shuster
+[Q] Who created the character of the 'Action Comics'?   [A] Joe Shuster [Pred] <unanswerable>
+[Q] What comic book did the character first appear in?  [A] Action Comics       [Pred] Marvel Comics
+[Q] What superhero has been adapted to a number of other media? [A] Superman    [Pred] Superman
+[Q] What was the name of the first superhero?   [A] Superman    [Pred] Superman
+[Q] Whose standard is a super hero compared to? [A] Superman    [Pred] conventions
+[Q] What nationality was the character of the main character?   [A] American    [Pred] American
 ```
 
 <br>
