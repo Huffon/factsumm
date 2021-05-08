@@ -35,7 +35,7 @@ def load_qg(model: str):
 
         for sentence, line_entities in zip(sentences, total_entities):
             for entity in line_entities:
-                entity = entity['word']
+                entity = entity["word"]
 
                 template = f"answer: {entity}  context: {sentence} </s>"
 
@@ -52,7 +52,7 @@ def load_qg(model: str):
 
                 question = tokenizer.decode(outputs[0])
                 question = question.replace("</s>", "")
-                question = question.replace("<pad> questions: ", "")
+                question = question.replace("<pad> question: ", "")
 
                 qa_pairs.append({
                     "question": question,
@@ -93,9 +93,14 @@ def load_qa(model: str):
             qa_pairs (List): Question & Answer pairs generated from Question Generation pipe
 
         """
+        answers = list()
         for qa_pair in qa_pairs:
-            answer = qa(question=qa_pair["question"], context=context)
-            print(answer)
+            answers.append({
+                "question": qa_pair["question"],
+                "answer": qa_pair["answer"],
+                "prediction": qa(question=qa_pair["question"], context=context)
+            })
+        return answers
 
     return answer_question
 
