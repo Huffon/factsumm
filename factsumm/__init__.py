@@ -1,12 +1,14 @@
+import logging
 from itertools import permutations
 from typing import Dict, List, Union
 
 import pysbd
-from rich import print
-
 from factsumm.utils.level_entity import load_ner, load_rel
 from factsumm.utils.level_sentence import load_qa, load_qg
 from factsumm.utils.utils import Config
+from rich import print
+
+logging.getLogger("transformers").setLevel(logging.ERROR)
 
 
 class FactSumm:
