@@ -3,6 +3,7 @@ from itertools import permutations
 from typing import Dict, List, Set, Tuple, Union
 
 import pysbd
+from sumeval.metrics.rouge import RougeCalculator
 from factsumm.utils.level_entity import load_ner, load_rel
 from factsumm.utils.level_sentence import load_qa, load_qg
 from factsumm.utils.utils import Config
@@ -22,6 +23,7 @@ class FactSumm:
     ):
         self.config = Config()
         self.segmenter = pysbd.Segmenter(language="en", clean=False)
+        self.rouge = RougeCalculator(stopwords=True, lang="en")
 
         # NER, RE, QG models supported by HuggingFace can be used (default can be found in `config.py`)
         ner = ner_model if ner_model is not None else self.config.NER_MODEL
@@ -82,6 +84,12 @@ class FactSumm:
                 f'{i+1}: {[(entity["word"], entity["entity"]) for entity in line_entities]}'
             )
         print()
+
+    def calculate_rouge(self, source: str, summary: str):
+        rouge_1 = self.rouge.rouge_n(source, summary, 1)
+        rouge_2 = self.rouge.rouge_n(source, summary, 2)
+        rouge_l = self.rouge.rouge_l(source, summary)
+        return rouge_1, rouge_2, rouge_l
 
     def _print_facts(self, mode: str, facts: Set[Tuple]):
         print(f"{mode.upper()} Facts")
