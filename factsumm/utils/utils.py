@@ -92,7 +92,7 @@ def grouped_entities(entities: List[Dict]):
                 "start": pair[2],
                 "end": pair[3]
             })
-            cache[pair[0]] = ""
+            cache[pair[0]] = None
     return dedup
 
 
