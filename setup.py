@@ -6,6 +6,7 @@ requirements = [
     "bert-score",
     "dataclasses; python_version<'3.7'",
     "rich",
+    "sumeval",
 ]
 
 VERSION = {}
