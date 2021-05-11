@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    "transformers",
+    "transformers>=4.5.1",
     "pysbd",
     "bert-score",
     "dataclasses; python_version<'3.7'",
     "rich",
     "sumeval",
+    "stanford_openie",
 ]
 
 VERSION = {}

@@ -98,3 +98,17 @@ def load_rel(model: str):
         return triples
 
     return extract_relation
+
+
+def load_ie():
+    """
+    Load Stanford Open IE based Triple Extractor function
+
+    Returns:
+        function: Open IE annotate function to extract fact triple
+
+    """
+    print("Loading Open IE Pipeline...")
+    from openie import StanfordOpenIE
+    client = StanfordOpenIE()
+    return client.annotate
