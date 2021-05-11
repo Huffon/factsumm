@@ -28,4 +28,4 @@ if __name__ == "__main__":
     # summary = summarzier(article)[0]["summary_text"].strip()
     summary = "Superman is a fictional superhero who first appeared in American comic books published by Marvel Comics. The character was created by writer Jerry Siegel and artist Joe Shuster. He popularized the superhero archetype and established its conventions. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre."
 
-    factsumm(article, summary)
+    factsumm(article, summary, verbose=True)

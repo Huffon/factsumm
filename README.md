@@ -39,7 +39,7 @@ pip install .
 >>> factsumm = FactSumm()
 >>> article = "Superman is a fictional superhero who first appeared in American comic books published by DC Comics. The character was created by writer Jerry Siegel and artist Joe Shuster, and first appeared in the comic book Action Comics #1. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre. Although Superman was not the first superhero character, he popularized the superhero archetype and established its conventions. Superheroes are usually judged by how closely they resemble the standard set by Superman. He was the best-selling superhero character in American comic books up until the 1980s."
 >>> summary = "Superman is a fictional superhero who first appeared in American comic books published by Marvel Comics. The character was created by writer Jerry Siegel and artist Joe Shuster. He popularized the superhero archetype and established its conventions. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre."
->>> factsumm(article, summary) 
+>>> factsumm(article, summary, verbose=True)
 SOURCE Entities
 1: [('Superman', 'PER'), ('American', 'MISC'), ('DC Comics', 'ORG')]
 2: [('Jerry Siegel', 'PER'), ('Joe Shuster', 'PER'), ('Action Comics', 'MISC')]
@@ -56,58 +56,69 @@ SUMMARY Entities
 
 SOURCE Facts
 ('American', 'per:alternate_names', 'Superman')
+('American', 'per:employee_of', 'DC Comics')
+('DC Comics', 'org:country_of_headquarters', 'American')
 ('Superman', 'per:employee_of', 'DC Comics')
 ('Superman', 'per:origin', 'American')
-('DC Comics', 'org:country_of_headquarters', 'American')
-('American', 'per:employee_of', 'DC Comics')
 
 SUMMARY Facts
+('American', 'per:alternate_names', 'Superman')
+('Marvel Comics', 'org:country_of_headquarters', 'American')
 ('Superman', 'per:employee_of', 'Marvel Comics')
 ('American', 'per:employee_of', 'Marvel Comics')
-('Marvel Comics', 'org:country_of_headquarters', 'American')
-('American', 'per:alternate_names', 'Superman')
 ('Superman', 'per:origin', 'American')
 
 COMMON Facts
-('Superman', 'per:origin', 'American')
 ('American', 'per:alternate_names', 'Superman')
+('Superman', 'per:origin', 'American')
 
 DIFF Facts
-('American', 'per:employee_of', 'Marvel Comics')
 ('Marvel Comics', 'org:country_of_headquarters', 'American')
 ('Superman', 'per:employee_of', 'Marvel Comics')
+('American', 'per:employee_of', 'Marvel Comics')
 
-SOURCE Questions
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [A] Superman    [Pred] Superman
-[Q] In what country did Superman first appear?  [A] American    [Pred] American
-[Q] What company published Superman comics?     [A] DC Comics   [Pred] DC Comics
-[Q] Who created the character?  [A] Jerry Siegel        [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character of the 'Action Comics'?   [A] Joe Shuster [Pred] <unanswerable>
-[Q] What comic book did the character first appear in?  [A] Action Comics       [Pred] Action Comics #1
-[Q] What superhero has been adapted to a number of other media? [A] Superman    [Pred] Superman
-[Q] What was the name of the first superhero?   [A] Superman    [Pred] <unanswerable>
-[Q] Whose standard is a super hero compared to? [A] Superman    [Pred] Superman
-[Q] What nationality was the character of the main character?   [A] American    [Pred] <unanswerable>
+Fact Score: 0.4
 
-SUMMARY Questions
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [A] Superman    [Pred] Superman
-[Q] In what country did Superman first appear?  [A] American    [Pred] American
-[Q] What company published the first Superman comic book?       [A] Marvel Comics       [Pred] Marvel Comics
-[Q] Who created the character?  [A] Jerry Siegel        [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character?  [A] Joe Shuster [Pred] Jerry Siegel and artist Joe Shuster
-[Q] What superhero has been adapted to a number of other media? [A] Superman    [Pred] Superman
+Answers based on SOURCE (Questions are generated from Summary)
+[Q] What is the name of the fictional superhero that first appeared in comic books?     [Ent] Superman  [Pred] Superman
+[Q] In what country did Superman first appear?  [Ent] American  [Pred] American
+[Q] What company published the first Superman comic book?       [Ent] Marvel Comics     [Pred] DC Comics
+[Q] Who created the character?  [Ent] Jerry Siegel      [Pred] Jerry Siegel and artist Joe Shuster
+[Q] Who created the character?  [Ent] Joe Shuster       [Pred] Jerry Siegel and artist Joe Shuster
+[Q] What superhero has been adapted to a number of other media? [Ent] Superman  [Pred] Superman
 
-DIFF Questions
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [A] Superman    [Pred] Superman
-[Q] In what country did Superman first appear?  [A] American    [Pred] American
-[Q] What company published Superman comics?     [A] DC Comics   [Pred] Marvel Comics
-[Q] Who created the character?  [A] Jerry Siegel        [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character of the 'Action Comics'?   [A] Joe Shuster [Pred] <unanswerable>
-[Q] What comic book did the character first appear in?  [A] Action Comics       [Pred] Marvel Comics
-[Q] What superhero has been adapted to a number of other media? [A] Superman    [Pred] Superman
-[Q] What was the name of the first superhero?   [A] Superman    [Pred] Superman
-[Q] Whose standard is a super hero compared to? [A] Superman    [Pred] conventions
-[Q] What nationality was the character of the main character?   [A] American    [Pred] American
+Answers based on SUMMARY (Questions are generated from Summary)
+[Q] What is the name of the fictional superhero that first appeared in comic books?     [Ent] Superman  [Pred] Superman
+[Q] In what country did Superman first appear?  [Ent] American  [Pred] American
+[Q] What company published the first Superman comic book?       [Ent] Marvel Comics     [Pred] Marvel Comics
+[Q] Who created the character?  [Ent] Jerry Siegel      [Pred] Jerry Siegel and artist Joe Shuster
+[Q] Who created the character?  [Ent] Joe Shuster       [Pred] Jerry Siegel and artist Joe Shuster
+[Q] What superhero has been adapted to a number of other media? [Ent] Superman  [Pred] Superman
+
+QAGS Score: 0.9166666666666666
+
+SOURCE Triples
+('they', 'closely resemble', 'standard set')
+('He', 'was', 'best selling character')
+('He', 'was', 'best selling character in comic books up until 1980s')
+('He', 'was', 'superhero character in comic books up until 1980s')
+('Superman', 'is fictional superhero', 'appeared in books published by DC Comics')
+('he', 'established', 'its conventions')
+...
+
+SUMMARY Triples
+('Superman', 'is fictional superhero', 'first appeared in American books published by Marvel Comics')
+('Superman', 'is fictional superhero', 'first appeared in American comic books published by Marvel Comics')
+('He', 'established', 'its conventions')
+('Superman', 'is fictional superhero', 'first appeared in American books')
+('Superman', 'is fictional superhero', 'first appeared in American comic books published')
+...
+
+Triple Score: 0.6774193548387096
+
+Avg. ROUGE-1: 0.34586498627159923
+Avg. ROUGE-2: 0.24065908743388897
+Avg. ROUGE-L: 0.30456185003002245
 ```
 
 <br>
@@ -118,7 +129,7 @@ From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to s
 
 <br>
 
-### Triple-based Factual Consistency
+### Triple-based Module
 
 count the fact overlap between generated summary and the source document
 
@@ -126,11 +137,25 @@ not combination, but permutation
 
 <br>
 
-### QA-based Factual Consistency
+### QA-based Module
 
 ![](assets/qa.png)
 
 If you ask questions about the summary and the source document, you will get a similar answer if the summary realistically matches the source document
+
+<br>
+
+### OpenIE-based Module
+
+Stanford OpenIE
+
+should consider it is based on open scheme
+
+<br>
+
+### ROUGE-based Module
+
+Simple but effective word-level overlap score
 
 <br>
 
@@ -141,4 +166,5 @@ If you ask questions about the summary and the source document, you will get a s
 - [PySBD](https://github.com/nipunsadvilkar/pySBD)
 - [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/abs/2104.14839.pdf)
 - [Assessing The Factual Accuracy of Generated Text](https://arxiv.org/abs/1905.13322.pdf)
+- [Asking and Answering Questions to Evaluate the Factual Consistency of Summaries](https://arxiv.org/abs/2004.04228)
 - [FEQA: A Question Answering Evaluation Framework for Faithfulness Assessment in Abstractive Summarization](https://arxiv.org/abs/2005.03754)
