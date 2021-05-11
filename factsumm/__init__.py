@@ -9,7 +9,7 @@ from sumeval.metrics.rouge import RougeCalculator
 
 from factsumm.utils.level_entity import load_ie, load_ner, load_rel
 from factsumm.utils.level_sentence import load_qa, load_qg
-from factsumm.utils.utils import Config
+from factsumm.utils.utils import Config, qags_score
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 logging.getLogger("transformers").setLevel(logging.ERROR)
@@ -79,10 +79,25 @@ class FactSumm:
         print()
 
     def calculate_rouge(self, source: str, summary: str):
-        rouge_1 = self.rouge.rouge_n(source, summary, 1)
-        rouge_2 = self.rouge.rouge_n(source, summary, 2)
-        rouge_l = self.rouge.rouge_l(source, summary)
-        return rouge_1, rouge_2, rouge_l
+        source_lines = self._segment(source)
+        num_lines = len(source_lines)
+
+        rouge_1 = 0.0
+        rouge_2 = 0.0
+        rouge_l = 0.0
+        for source_line in source_lines:
+            rouge_1 += self.rouge.rouge_n(summary, source_line, 1)
+            rouge_2 += self.rouge.rouge_n(summary, source_line, 2)
+            rouge_l += self.rouge.rouge_l(summary, source_line)
+
+        avg_rouge_1 = rouge_1 / num_lines
+        avg_rouge_2 = rouge_2 / num_lines
+        avg_rouge_l = rouge_l / num_lines
+
+        print(
+            f"Avg. ROUGE-1: {avg_rouge_1}\nAvg. ROUGE-2: {avg_rouge_2}\nAvg. ROUGE-L: {avg_rouge_l}"
+        )
+        return avg_rouge_1, avg_rouge_2, avg_rouge_l
 
     def _print_facts(self, mode: str, facts: Set[Tuple]):
         print(f"{mode.upper()} Facts")
@@ -91,6 +106,17 @@ class FactSumm:
         print()
 
     def extract_facts(self, source: str, summary: str, verbose: bool = False):
+        """
+        Extract (head_entity, relation, tail_entity) relation triple using NER & RE module
+
+            See also https://arxiv.org/abs/1905.13322.pdf
+
+        Args:
+            source (str): original source
+            summary (str): generated summary
+            verbose (bool, optional): print verbose option. Defaults to False.
+
+        """
         if isinstance(self.ner, str) and isinstance(self.rel, str):
             self.ner = load_ner(self.ner)
             self.rel = load_rel(self.rel)
@@ -125,10 +151,12 @@ class FactSumm:
         return source_ents, summary_ents, fact_score
 
     def _print_qas(self, mode: str, questions: List[Dict]):
-        print(f"{mode.upper()} Questions")
+        print(
+            f"Answers based on {mode.upper()} (Questions are generated from Summary)"
+        )
         for question in questions:
             print(
-                f"[Q] {question['question']}\t[A] {question['answer']}\t[Pred] {question['prediction']}"
+                f"[Q] {question['question']}\t[Ent] {question['answer']}\t[Pred] {question['prediction']}"
             )
         print()
 
@@ -140,6 +168,19 @@ class FactSumm:
         summary_ents: List = None,
         verbose: bool = False,
     ):
+        """
+        Extract Question & Answering Pair generated from Question Generation module
+
+            See also https://arxiv.org/abs/2004.04228
+
+        Args:
+            source (str): original source
+            summary (str): generated summary
+            source_ents (List, optional): named entities extracted from source. Defaults to None.
+            summary_ents (List, optional): named entities extracted from source. Defaults to None.
+            verbose (bool, optional): print verbose option. Defaults to False.
+
+        """
         if isinstance(self.qg, str) and isinstance(self.qa, str):
             self.qg = load_qg(self.qg)
             self.qa = load_qa(self.qa)
@@ -156,17 +197,19 @@ class FactSumm:
         if summary_ents is None:
             summary_ents = self.ner(summary_lines)
 
-        source_qas = self.qg(source_lines, source_ents)
         summary_qas = self.qg(summary_lines, summary_ents)
 
-        source_answers = self.qa(source, source_qas)
+        source_answers = self.qa(source, summary_qas)
         summary_answers = self.qa(summary, summary_qas)
-        diff_answers = self.qa(summary, source_qas)
 
         if verbose:
             self._print_qas("source", source_answers)
             self._print_qas("summary", summary_answers)
-            self._print_qas("diff", diff_answers)
+
+        qa_score = qags_score(source_answers, summary_answers)
+        print(f"QAGS Score: {qa_score}\n")
+
+        return qa_score
 
     def _print_triples(self, mode: str, triples: Set):
         print(f"{mode.upper()} Triples")
@@ -197,7 +240,7 @@ class FactSumm:
         common_triples = summary_triples.intersection(source_triples)
         triple_score = len(common_triples) / len(summary_triples)
 
-        print(f"Triple Score: {triple_score}")
+        print(f"Triple Score: {triple_score}\n")
 
         return triple_score
 
@@ -207,5 +250,12 @@ class FactSumm:
             summary,
             verbose,
         )
-        self.extract_qas(source, summary, source_ents, summary_ents, verbose)
+        qags_score = self.extract_qas(
+            source,
+            summary,
+            source_ents,
+            summary_ents,
+            verbose,
+        )
         triple_score = self.extract_triples(source, summary, verbose)
+        self.calculate_rouge(source, summary)
