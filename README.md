@@ -141,3 +141,4 @@ If you ask questions about the summary and the source document, you will get a s
 - [PySBD](https://github.com/nipunsadvilkar/pySBD)
 - [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/abs/2104.14839.pdf)
 - [Assessing The Factual Accuracy of Generated Text](https://arxiv.org/abs/1905.13322.pdf)
+- [FEQA: A Question Answering Evaluation Framework for Faithfulness Assessment in Abstractive Summarization](https://arxiv.org/abs/2005.03754)

@@ -60,8 +60,12 @@ class FactSumm:
 
     def count_facts(self, lines: List[str], entities: List[List[Dict]]):
         combs = self.build_comb(lines, entities)
-        triples = {self.rel(comb) for comb in combs}
-        return triples
+        triples = list()
+
+        for comb in combs:
+            triples.extend(self.rel(comb))
+
+        return set(triples)
 
     def _segment(self, text: str):
         return [line.strip() for line in self.segmenter.segment(text)]
@@ -86,7 +90,7 @@ class FactSumm:
             print(fact)
         print()
 
-    def extract_facts(self, source: str, summary: str):
+    def extract_facts(self, source: str, summary: str, verbose: bool = False):
         if isinstance(self.ner, str) and isinstance(self.rel, str):
             self.ner = load_ner(self.ner)
             self.rel = load_rel(self.rel)
@@ -98,9 +102,6 @@ class FactSumm:
         source_ents = self.ner(source_lines)
         summary_ents = self.ner(summary_lines)
 
-        self._print_entities("source", source_ents)
-        self._print_entities("summary", summary_ents)
-
         # extract entity-based triple: (head, relation, tail)
         source_facts = self.count_facts(source_lines, source_ents)
         summary_facts = self.count_facts(summary_lines, summary_ents)
@@ -108,12 +109,20 @@ class FactSumm:
         common_facts = summary_facts.intersection(source_facts)
         diff_facts = summary_facts.difference(source_facts)
 
-        self._print_facts("source", source_facts)
-        self._print_facts("summary", summary_facts)
+        if verbose:
+            self._print_entities("source", source_ents)
+            self._print_entities("summary", summary_ents)
 
-        self._print_facts("common", common_facts)
-        self._print_facts("diff", diff_facts)
-        return source_ents, summary_ents
+            self._print_facts("source", source_facts)
+            self._print_facts("summary", summary_facts)
+
+            self._print_facts("common", common_facts)
+            self._print_facts("diff", diff_facts)
+
+        fact_score = len(common_facts) / len(summary_facts)
+        print(f"Fact Score: {fact_score}")
+
+        return source_ents, summary_ents, fact_score
 
     def _print_qas(self, mode: str, questions: List[Dict]):
         print(f"{mode.upper()} Questions")
@@ -129,6 +138,7 @@ class FactSumm:
         summary: str,
         source_ents: List = None,
         summary_ents: List = None,
+        verbose: bool = False,
     ):
         if isinstance(self.qg, str) and isinstance(self.qa, str):
             self.qg = load_qg(self.qg)
@@ -153,21 +163,49 @@ class FactSumm:
         summary_answers = self.qa(summary, summary_qas)
         diff_answers = self.qa(summary, source_qas)
 
-        self._print_qas("source", source_answers)
-        self._print_qas("summary", summary_answers)
-        self._print_qas("diff", diff_answers)
+        if verbose:
+            self._print_qas("source", source_answers)
+            self._print_qas("summary", summary_answers)
+            self._print_qas("diff", diff_answers)
 
-    def extract_triples(self, source: str, summary: str):
+    def _print_triples(self, mode: str, triples: Set):
+        print(f"{mode.upper()} Triples")
+        for triple in triples:
+            print(triple)
+        print()
+
+    def extract_triples(self, source: str, summary: str, verbose: bool = False):
         if self.ie is None:
             self.ie = load_ie()
 
-        source_triples = self.ie(source)
-        summary_triples = self.ie(summary)
+        source_triples = {(
+            triple["subject"],
+            triple["relation"],
+            triple["object"],
+        ) for triple in self.ie(source)}
 
-        print(source_triples)
-        print(summary_triples)
+        summary_triples = {(
+            triple["subject"],
+            triple["relation"],
+            triple["object"],
+        ) for triple in self.ie(summary)}
 
-    def __call__(self, source: str, summary: str):
-        source_ents, summary_ents = self.extract_facts(source, summary)
-        self.extract_qas(source, summary, source_ents, summary_ents)
-        self.extract_triples(source, summary)
+        if verbose:
+            self._print_triples("source", source_triples)
+            self._print_triples("summary", summary_triples)
+
+        common_triples = summary_triples.intersection(source_triples)
+        triple_score = len(common_triples) / len(summary_triples)
+
+        print(f"Triple Score: {triple_score}")
+
+        return triple_score
+
+    def __call__(self, source: str, summary: str, verbose: bool = False):
+        source_ents, summary_ents, fact_score = self.extract_facts(
+            source,
+            summary,
+            verbose,
+        )
+        self.extract_qas(source, summary, source_ents, summary_ents, verbose)
+        triple_score = self.extract_triples(source, summary, verbose)
