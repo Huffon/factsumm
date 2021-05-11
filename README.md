@@ -16,7 +16,7 @@ So don't blame me, just take it as a concept project 👀
 
 ## Installation
 
-You can install `factsumm` simply using `pip`:
+`FactSumm` requires *Java* to be installed in your environment to use **Stanford OpenIE**. With *Java* and *Python 3*, you can install `factsumm` simply using `pip`:
 
 ```bash
 pip install factsumm
@@ -139,4 +139,5 @@ If you ask questions about the summary and the source document, you will get a s
 - [HuggingFace Transformers](https://github.com/huggingface/transformers)
 - [BERTScore](https://github.com/Tiiiger/bert_score)
 - [PySBD](https://github.com/nipunsadvilkar/pySBD)
-- [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/pdf/2104.14839.pdf)
+- [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/abs/2104.14839.pdf)
+- [Assessing The Factual Accuracy of Generated Text](https://arxiv.org/abs/1905.13322.pdf)

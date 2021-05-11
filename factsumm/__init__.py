@@ -1,14 +1,17 @@
 import logging
+import os
 from itertools import permutations
 from typing import Dict, List, Set, Tuple, Union
 
 import pysbd
+from rich import print
 from sumeval.metrics.rouge import RougeCalculator
-from factsumm.utils.level_entity import load_ner, load_rel
+
+from factsumm.utils.level_entity import load_ie, load_ner, load_rel
 from factsumm.utils.level_sentence import load_qa, load_qg
 from factsumm.utils.utils import Config
-from rich import print
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
 
@@ -26,17 +29,11 @@ class FactSumm:
         self.rouge = RougeCalculator(stopwords=True, lang="en")
 
         # NER, RE, QG models supported by HuggingFace can be used (default can be found in `config.py`)
-        ner = ner_model if ner_model is not None else self.config.NER_MODEL
-        rel = rel_model if rel_model is not None else self.config.REL_MODEL
-        qg = qg_model if qg_model is not None else self.config.QG_MODEL
-        qa = qa_model if qa_model is not None else self.config.QA_MODEL
-
-        # Load required pipes
-        self.ner = load_ner(ner)
-        self.rel = load_rel(rel)
-
-        self.qg = load_qg(qg)
-        self.qa = load_qa(qa)
+        self.ner = ner_model if ner_model is not None else self.config.NER_MODEL
+        self.rel = rel_model if rel_model is not None else self.config.REL_MODEL
+        self.qg = qg_model if qg_model is not None else self.config.QG_MODEL
+        self.qa = qa_model if qa_model is not None else self.config.QA_MODEL
+        self.ie = None
 
     def build_comb(
         self,
@@ -63,16 +60,8 @@ class FactSumm:
 
     def count_facts(self, lines: List[str], entities: List[List[Dict]]):
         combs = self.build_comb(lines, entities)
-
-        triples = list()
-
-        for comb in combs:
-            triples.extend(self.rel(comb))
-
-        return set(triples)
-
-    def count_question(self):
-        pass
+        triples = {self.rel(comb) for comb in combs}
+        return triples
 
     def _segment(self, text: str):
         return [line.strip() for line in self.segmenter.segment(text)]
@@ -97,15 +86,11 @@ class FactSumm:
             print(fact)
         print()
 
-    def _print_qas(self, mode: str, questions: List[Dict]):
-        print(f"{mode.upper()} Questions")
-        for question in questions:
-            print(
-                f"[Q] {question['question']}\t[A] {question['answer']}\t[Pred] {question['prediction']}"
-            )
-        print()
+    def extract_facts(self, source: str, summary: str):
+        if isinstance(self.ner, str) and isinstance(self.rel, str):
+            self.ner = load_ner(self.ner)
+            self.rel = load_rel(self.rel)
 
-    def __call__(self, source: str, summary: str):
         source_lines = self._segment(source)
         summary_lines = self._segment(summary)
 
@@ -128,6 +113,38 @@ class FactSumm:
 
         self._print_facts("common", common_facts)
         self._print_facts("diff", diff_facts)
+        return source_ents, summary_ents
+
+    def _print_qas(self, mode: str, questions: List[Dict]):
+        print(f"{mode.upper()} Questions")
+        for question in questions:
+            print(
+                f"[Q] {question['question']}\t[A] {question['answer']}\t[Pred] {question['prediction']}"
+            )
+        print()
+
+    def extract_qas(
+        self,
+        source: str,
+        summary: str,
+        source_ents: List = None,
+        summary_ents: List = None,
+    ):
+        if isinstance(self.qg, str) and isinstance(self.qa, str):
+            self.qg = load_qg(self.qg)
+            self.qa = load_qa(self.qa)
+
+        if isinstance(self.ner, str):
+            self.ner = load_ner(self.ner)
+
+        source_lines = self._segment(source)
+        summary_lines = self._segment(summary)
+
+        if source_ents is None:
+            source_ents = self.ner(source_lines)
+
+        if summary_ents is None:
+            summary_ents = self.ner(summary_lines)
 
         source_qas = self.qg(source_lines, source_ents)
         summary_qas = self.qg(summary_lines, summary_ents)
@@ -139,3 +156,18 @@ class FactSumm:
         self._print_qas("source", source_answers)
         self._print_qas("summary", summary_answers)
         self._print_qas("diff", diff_answers)
+
+    def extract_triples(self, source: str, summary: str):
+        if self.ie is None:
+            self.ie = load_ie()
+
+        source_triples = self.ie(source)
+        summary_triples = self.ie(summary)
+
+        print(source_triples)
+        print(summary_triples)
+
+    def __call__(self, source: str, summary: str):
+        source_ents, summary_ents = self.extract_facts(source, summary)
+        self.extract_qas(source, summary, source_ents, summary_ents)
+        self.extract_triples(source, summary)
