@@ -125,6 +125,44 @@ From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to s
 
 ### Triple-based Module
 
+```python
+>>> from factsumm import FactSumm
+>>> factsumm = FactSumm()
+>>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
+>>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
+>>> factsumm.extract_facts(article, summary, verbose=True)
+SOURCE Entities
+1: [('Son Heung - min', 'PER'), ('South Korean', 'MISC'), ('Premier League', 'MISC'), ('Tottenham Hotspur', 'ORG'), ('South Korea', 'LOC')]
+
+SUMMARY Entities
+1: [('Son Heung - min', 'PER'), ('American', 'MISC'), ('Tottenham Hotspur', 'ORG')]
+
+SOURCE Facts
+('Premier League', 'org:members', 'Tottenham Hotspur')
+('South Korean', 'per:origin', 'South Korea')
+('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
+('South Korea', 'org:top_members/employees', 'Son Heung-min')
+('South Korea', 'per:origin', 'South Korean')
+('South Korean', 'org:top_members/employees', 'Son Heung-min')
+('Son Heung-min', 'per:origin', 'South Korean')
+('Tottenham Hotspur', 'org:member_of', 'Premier League')
+('Son Heung-min', 'per:countries_of_residence', 'South Korea')
+('South Korean', 'per:employee_of', 'Tottenham Hotspur')
+
+SUMMARY Facts
+('Son Heung-min', 'per:origin', 'American')
+('American', 'per:employee_of', 'Tottenham Hotspur')
+('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
+
+COMMON Facts
+('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
+
+DIFF Facts
+('Son Heung-min', 'per:origin', 'American')
+('American', 'per:employee_of', 'Tottenham Hotspur')
+
+Fact Score: 0.3333333333333333
+```
 
 The triple-based module counts the overlap of fact triples between the generated summary and the source document.
 
@@ -136,19 +174,101 @@ The triple-based module counts the overlap of fact triples between the generated
 
 If you ask questions about the summary and the source document, you will get a similar answer if the summary realistically matches the source document
 
+```python
+>>> from factsumm import FactSumm
+>>> factsumm = FactSumm()
+>>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
+>>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
+>>> factsumm.extract_qas(article, summary, verbose=True)
+[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Ent] Son Heung - min   [Pred] Son Heung-min
+[Q] What nationality is Son Heung-min?  [Ent] American  [Pred] South Korean
+[Q] What team does Son Heung-min play for?      [Ent] Tottenham Hotspur [Pred] Tottenham Hotspur
+
+Answers based on SUMMARY (Questions are generated from Summary)
+[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Ent] Son Heung - min   [Pred] Son Heung-min
+[Q] What nationality is Son Heung-min?  [Ent] American  [Pred] American
+[Q] What team does Son Heung-min play for?      [Ent] Tottenham Hotspur [Pred] Tottenham Hotspur
+
+QAGS Score: 0.6666666666666666
+```
+
 <br>
 
 ### OpenIE-based Module
+
+```python
+>>> from factsumm import FactSumm
+>>> factsumm = FactSumm()
+>>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
+>>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
+>>> factsumm.extract_triples(article, summary, verbose=True)
+SOURCE Triples
+('Son Heung min', 'is Korean professional footballer', 'plays')
+('Son Heung min', 'is', 'South Korean professional footballer')
+('Son Heung min', 'is', 'footballer')
+('Son Heung min', 'is professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is Korean professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is', 'Korean professional footballer')
+('Son Heung min', 'is Korean professional footballer', 'plays as forward')
+('Son Heung min', 'is', 'professional footballer')
+('Son Heung min', 'is South Korean footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is South Korean professional footballer', 'plays')
+('min', 'is professional', 'plays')
+('Son Heung min', 'is footballer', 'plays')
+('Son Heung min', 'is footballer', 'plays as forward')
+('Son Heung min', 'is South Korean professional footballer', 'plays as forward')
+('Son Heung min', 'is South Korean professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is South Korean footballer', 'plays as forward')
+('Son Heung min', 'is footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is', 'Korean footballer')
+('Son Heung min', 'is', 'South Korean footballer')
+('min', 'is Korean', 'plays')
+('Son Heung min', 'is Korean footballer', 'plays as forward')
+('Son Heung min', 'is professional footballer', 'plays')
+('Son Heung min', 'is South Korean footballer', 'plays')
+('Son Heung min', 'is Korean footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is Korean footballer', 'plays')
+('Son Heung min', 'is professional footballer', 'plays as forward')
+
+SUMMARY Triples
+('min', 'is professional', 'plays')
+('Son Heung min', 'is professional footballer', 'plays')
+('Son Heung min', 'is footballer', 'plays')
+('Son Heung min', 'is American professional footballer', 'plays')
+('Son Heung min', 'is', 'American footballer')
+('Son Heung min', 'is', 'professional footballer')
+('Son Heung min', 'is', 'footballer')
+('Son Heung min', 'is American footballer', 'plays for Tottenham Hotspur')
+('Son Heung min', 'is', 'American professional footballer')
+('Son Heung min', 'is professional footballer', 'plays for Tottenham Hotspur')
+('Son Heung min', 'is footballer', 'plays for Tottenham Hotspur')
+('Son Heung min', 'is American professional footballer', 'plays for Tottenham Hotspur')
+('min', 'is American', 'plays')
+('Son Heung min', 'is American footballer', 'plays')
+
+Triple Score: 0.35714285714285715
+```
 
 Stanford OpenIE can extract relationships from raw strings. But it's important to note that it's based on the open scheme, not the closed scheme (like `Triple-based Module`).
 
 For example, from `"Obama was born in Hawaii"`, OpenIE extracts (Obama, born in Hawaii). However, from `"Hawaii is the birthplace of Obama"`, it extracts (Hawaii, is the birthplace of, Obama). In common sense, the triples extracted from the two sentences should be identical, but OpenIE can't recognize that they are the same since it is based on an open scheme.
 
-So the score for this module may be unstable
+So the score for this module may be unstable.
 
 <br>
 
 ### ROUGE-based Module
+
+```python
+>>> from factsumm import FactSumm
+>>> factsumm = FactSumm()
+>>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
+>>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
+>>> factsumm.calculate_rouge(article, summary)
+Avg. ROUGE-1: 0.5714285714285714
+Avg. ROUGE-2: 0.3846153846153846
+Avg. ROUGE-L: 0.5714285714285714
+```
 
 Simple but effective word-level overlap ROUGE score
 

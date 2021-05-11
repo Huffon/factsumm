@@ -299,4 +299,4 @@ class FactSumm:
             verbose,
         )
         triple_score = self.extract_triples(source, summary, verbose)
-        self.calculate_rouge(source, summary)
+        rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
