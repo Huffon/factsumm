@@ -277,8 +277,10 @@ Simple but effective word-level overlap ROUGE score
 ## References
 
 - [HuggingFace Transformers](https://github.com/huggingface/transformers)
+- [stanford-openie-python](https://github.com/philipperemy/stanford-openie-python)
 - [BERTScore](https://github.com/Tiiiger/bert_score)
 - [PySBD](https://github.com/nipunsadvilkar/pySBD)
+- [SumEval](https://github.com/chakki-works/sumeval)
 - [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/abs/2104.14839.pdf)
 - [Assessing The Factual Accuracy of Generated Text](https://arxiv.org/abs/1905.13322.pdf)
 - [Asking and Answering Questions to Evaluate the Factual Consistency of Summaries](https://arxiv.org/abs/2004.04228)
