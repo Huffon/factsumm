@@ -16,13 +16,7 @@ So don't blame me, just take it as a concept project 👀
 
 ## Installation
 
-`FactSumm` requires *Java* to be installed in your environment to use **Stanford OpenIE**. With *Java* and *Python 3*, you can install `factsumm` simply using `pip`:
-
-```bash
-pip install factsumm
-```
-
-Or you can install it from source repository:
+`FactSumm` requires *Java* to be installed in your environment to use **Stanford OpenIE**. With *Java* and *Python 3*, you can install `FactSumm` from source repository:
 
 ```bash
 git clone https://github.com/huffon/factsumm
@@ -131,9 +125,8 @@ From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to s
 
 ### Triple-based Module
 
-count the fact overlap between generated summary and the source document
 
-not combination, but permutation
+The triple-based module counts the overlap of fact triples between the generated summary and the source document.
 
 <br>
 
@@ -147,15 +140,17 @@ If you ask questions about the summary and the source document, you will get a s
 
 ### OpenIE-based Module
 
-Stanford OpenIE
+Stanford OpenIE can extract relationships from raw strings. But it's important to note that it's based on the open scheme, not the closed scheme (like `Triple-based Module`).
 
-should consider it is based on open scheme
+For example, from `"Obama was born in Hawaii"`, OpenIE extracts (Obama, born in Hawaii). However, from `"Hawaii is the birthplace of Obama"`, it extracts (Hawaii, is the birthplace of, Obama). In common sense, the triples extracted from the two sentences should be identical, but OpenIE can't recognize that they are the same since it is based on an open scheme.
+
+So the score for this module may be unstable
 
 <br>
 
 ### ROUGE-based Module
 
-Simple but effective word-level overlap score
+Simple but effective word-level overlap ROUGE score
 
 <br>
 

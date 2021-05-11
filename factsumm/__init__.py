@@ -35,35 +35,56 @@ class FactSumm:
         self.qa = qa_model if qa_model is not None else self.config.QA_MODEL
         self.ie = None
 
-    def build_comb(
+    def build_perm(
         self,
         lines: List[str],
         total_entities: Union[List[Dict], List[List[Dict]]],
     ):
-        total_combs = list()
+        """
+        Build entity permutations for Relation Extraction
+
+        Args:
+            lines (List[str]): segmented document lines
+            total_entities (Union[List[Dict], List[List[Dict]]]): list of total entities
+
+        Returns:
+            List: list of permutations
+
+        """
+        total_perms = list()
 
         for line, line_entities in zip(lines, total_entities):
-            line_combs = list(permutations(line_entities, 2))
+            line_perms = list(permutations(line_entities, 2))
 
-            line_combs = [{
+            line_perms = [{
                 "text":
                     line,
                 "spans": [
                     (comb[0]["start"], comb[0]["end"]),
                     (comb[-1]["start"], comb[-1]["end"]),
                 ]
-            } for comb in line_combs]
+            } for comb in line_perms]
 
-            total_combs.append(line_combs)
+            total_perms.append(line_perms)
 
-        return total_combs
+        return total_perms
 
     def count_facts(self, lines: List[str], entities: List[List[Dict]]):
-        combs = self.build_comb(lines, entities)
+        """[summary]
+
+        Args:
+            lines (List[str]): segmented document lines
+            entities (List[List[Dict]]): list of total entities
+
+        Returns:
+            Set: set of relation inferenced from permutations
+
+        """
+        perms = self.build_perm(lines, entities)
         triples = list()
 
-        for comb in combs:
-            triples.extend(self.rel(comb))
+        for perm in perms:
+            triples.extend(self.rel(perm))
 
         return set(triples)
 
@@ -79,6 +100,17 @@ class FactSumm:
         print()
 
     def calculate_rouge(self, source: str, summary: str):
+        """
+        Calculate ROUGE score
+
+        Args:
+            source (str): original source
+            summary (str): generated summary
+
+        Returns:
+            Tuple: (ROUGE-1, ROUGE-2, ROUGE-L) tuple
+
+        """
         source_lines = self._segment(source)
         num_lines = len(source_lines)
 
@@ -218,6 +250,15 @@ class FactSumm:
         print()
 
     def extract_triples(self, source: str, summary: str, verbose: bool = False):
+        """
+        Extract OpenIE based fact triples
+
+        Args:
+            source (str): original source
+            summary (str): generated summary
+            verbose (bool, optional): print verbose option. Defaults to False.
+
+        """
         if self.ie is None:
             self.ie = load_ie()
 
