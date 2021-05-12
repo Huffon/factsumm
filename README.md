@@ -1,5 +1,11 @@
 # FactSumm: Factual Consistency Scorer for Abstractive Summarization
 
+<p align="center">
+  <a href="https://github.com/huffon/factsumm/releases"><img alt="GitHub release" src="https://img.shields.io/github/release/huffon/factsumm.svg" /></a>
+  <a href="https://github.com/huffon/factsumm/blob/master/LICENSE"><img alt="Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" /></a>
+  <a href="https://github.com/huffon/factsumm/issues"><img alt="Issues" src="https://img.shields.io/github/issues/huffon/factsumm" /></a>
+</p>
+
 `FactSumm` is a toolkit that scores *__Factualy Consistency__* for **Abstract Summarization**
 
 Without fine-tuning, you can simply apply a variety of downstream tasks to both `the source article` and `the generated abstractive summary`
