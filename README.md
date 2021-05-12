@@ -16,7 +16,13 @@ So don't blame me, just take it as a concept project 👀
 
 ## Installation
 
-`FactSumm` requires *Java* to be installed in your environment to use **Stanford OpenIE**. With *Java* and *Python 3*, you can install `FactSumm` from source repository:
+`FactSumm` requires *Java* to be installed in your environment to use **Stanford OpenIE**. With *Java* and *Python 3*, you can install `factsumm` simply using `pip`:
+
+```bash
+pip install factsumm
+```
+
+Or you can install `FactSumm` from source repository:
 
 ```bash
 git clone https://github.com/huffon/factsumm
