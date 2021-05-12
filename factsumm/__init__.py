@@ -28,7 +28,7 @@ class FactSumm:
         self.segmenter = pysbd.Segmenter(language="en", clean=False)
         self.rouge = RougeCalculator(stopwords=True, lang="en")
 
-        # NER, RE, QG models supported by HuggingFace can be used (default can be found in `config.py`)
+        # NER, RE, QG, QA models supported by HuggingFace can be used (default can be found in `config.py`)
         self.ner = ner_model if ner_model is not None else self.config.NER_MODEL
         self.rel = rel_model if rel_model is not None else self.config.REL_MODEL
         self.qg = qg_model if qg_model is not None else self.config.QG_MODEL
@@ -69,8 +69,9 @@ class FactSumm:
 
         return total_perms
 
-    def count_facts(self, lines: List[str], entities: List[List[Dict]]):
-        """[summary]
+    def get_facts(self, lines: List[str], entities: List[List[Dict]]):
+        """
+        Get fact triples using Relation Extraction model
 
         Args:
             lines (List[str]): segmented document lines
@@ -92,12 +93,12 @@ class FactSumm:
         return [line.strip() for line in self.segmenter.segment(text)]
 
     def _print_entities(self, mode: str, total_entities: List[List[Dict]]):
+        # yapf:disable
         print(f"{mode.upper()} Entities")
         for i, line_entities in enumerate(total_entities):
-            print(
-                f'{i+1}: {[(entity["word"], entity["entity"]) for entity in line_entities]}'
-            )
+            print(f'{i+1}: {[(entity["word"], entity["entity"]) for entity in line_entities]}')
         print()
+        # yapf:enable
 
     def calculate_rouge(self, source: str, summary: str):
         """
@@ -161,8 +162,8 @@ class FactSumm:
         summary_ents = self.ner(summary_lines)
 
         # extract entity-based triple: (head, relation, tail)
-        source_facts = self.count_facts(source_lines, source_ents)
-        summary_facts = self.count_facts(summary_lines, summary_ents)
+        source_facts = self.get_facts(source_lines, source_ents)
+        summary_facts = self.get_facts(summary_lines, summary_ents)
 
         common_facts = summary_facts.intersection(source_facts)
         diff_facts = summary_facts.difference(source_facts)

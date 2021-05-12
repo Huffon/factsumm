@@ -130,28 +130,28 @@ def f1_score(gold_answer: str, pred_answer: str):
 
     """
 
-    def normalize_answer(s):
+    def _normalize_answer(text: str):
 
-        def remove_articles(text):
-            return re.sub(r'\b(a|an|the)\b', ' ', text)
-
-        def white_space_fix(text):
-            return ' '.join(text.split())
-
-        def remove_punc(text):
+        def _remove_punc(text: str):
             exclude = set(string.punctuation)
-            return ''.join(ch for ch in text if ch not in exclude)
+            return "".join(ch for ch in text if ch not in exclude)
 
-        return white_space_fix(remove_articles(remove_punc(s.lower())))
+        def _remove_articles(text: str):
+            return re.sub(r"\b(a|an|the)\b", " ", text)
 
-    gold_toks = normalize_answer(gold_answer).split()
-    pred_toks = normalize_answer(pred_answer).split()
+        def _white_space_fix(text: str):
+            return " ".join(text.split())
+
+        return _white_space_fix(_remove_articles(_remove_punc(text.lower())))
+
+    gold_toks = _normalize_answer(gold_answer).split()
+    pred_toks = _normalize_answer(pred_answer).split()
 
     common_toks = Counter(gold_toks) & Counter(pred_toks)
 
     num_same_toks = sum(common_toks.values())
 
-    # If either is no-answer, then F1 is 1 if they agree, 0 otherwise
+    # If either is <unanswerable>, then F1 is 1 if they agree, 0 otherwise
     if gold_answer == "<unanswerable>" or pred_answer == "<unanswerable>":
         return int(gold_answer == pred_answer)
 

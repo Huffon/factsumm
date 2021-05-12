@@ -276,6 +276,8 @@ Simple but effective word-level overlap ROUGE score
 
 ### Citation
 
+If you apply this library to any project, please cite:
+
 ```
 @misc{factsumm,
   author       = {Heo, Hoon},
