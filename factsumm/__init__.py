@@ -140,7 +140,7 @@ class FactSumm:
 
     def _filter_out(self, sources: Set, summaries: Set):
         """
-        Filter out triples that don't share a subject and relation
+        Filter out triples that don't share a subject and relation for comparability
 
         Args:
             sources (Set): set of triples from source
