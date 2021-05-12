@@ -183,14 +183,12 @@ class FactSumm:
         return source_ents, summary_ents, fact_score
 
     def _print_qas(self, mode: str, questions: List[Dict]):
-        print(
-            f"Answers based on {mode.upper()} (Questions are generated from Summary)"
-        )
+        # yapf:disable
+        print(f"Answers based on {mode.upper()} (Questions are generated from Summary)")
         for question in questions:
-            print(
-                f"[Q] {question['question']}\t[Ent] {question['answer']}\t[Pred] {question['prediction']}"
-            )
+            print(f"[Q] {question['question']}\t[Pred] {question['prediction']}")
         print()
+        # yapf:enable
 
     def extract_qas(
         self,

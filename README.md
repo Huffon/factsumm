@@ -274,6 +274,19 @@ Simple but effective word-level overlap ROUGE score
 
 <br>
 
+### Citation
+
+```
+@misc{factsumm,
+  author       = {Heo, Hoon},
+  title        = {FactSumm: Factual Consistency Scorer for Abstractive Summarization},
+  howpublished = {\url{https://github.com/Huffon/factsumm}},
+  year         = {2021},
+}
+```
+
+<br>
+
 ## References
 
 - [HuggingFace Transformers](https://github.com/huggingface/transformers)
