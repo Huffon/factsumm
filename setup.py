@@ -8,6 +8,7 @@ requirements = [
     "rich",
     "sumeval",
     "stanford_openie",
+    "flair",
 ]
 
 VERSION = {}
