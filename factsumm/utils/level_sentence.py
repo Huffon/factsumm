@@ -1,5 +1,6 @@
 from typing import List
 
+from rich import print
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
 

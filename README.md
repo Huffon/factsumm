@@ -50,14 +50,12 @@ SUMMARY Entities
 
 SOURCE Facts
 ('American', 'per:alternate_names', 'Superman')
-('American', 'per:employee_of', 'DC Comics')
-('DC Comics', 'org:country_of_headquarters', 'American')
 ('Superman', 'per:employee_of', 'DC Comics')
 ('Superman', 'per:origin', 'American')
+('American', 'per:employee_of', 'DC Comics')
 
 SUMMARY Facts
 ('American', 'per:alternate_names', 'Superman')
-('Marvel Comics', 'org:country_of_headquarters', 'American')
 ('Superman', 'per:employee_of', 'Marvel Comics')
 ('American', 'per:employee_of', 'Marvel Comics')
 ('Superman', 'per:origin', 'American')
@@ -67,48 +65,47 @@ COMMON Facts
 ('Superman', 'per:origin', 'American')
 
 DIFF Facts
-('Marvel Comics', 'org:country_of_headquarters', 'American')
-('Superman', 'per:employee_of', 'Marvel Comics')
 ('American', 'per:employee_of', 'Marvel Comics')
+('Superman', 'per:employee_of', 'Marvel Comics')
 
-Fact Score: 0.4
+Fact Score: 0.5
+
 
 Answers based on SOURCE (Questions are generated from Summary)
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [Ent] Superman  [Pred] Superman
-[Q] In what country did Superman first appear?  [Ent] American  [Pred] American
-[Q] What company published the first Superman comic book?       [Ent] Marvel Comics     [Pred] DC Comics
-[Q] Who created the character?  [Ent] Jerry Siegel      [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character?  [Ent] Joe Shuster       [Pred] Jerry Siegel and artist Joe Shuster
-[Q] What superhero has been adapted to a number of other media? [Ent] Superman  [Pred] Superman
+[Q] What is the name of the fictional superhero that first appeared in comic books?     [Pred] Superman
+[Q] In what country did Superman first appear?  [Pred] American
+[Q] What company published the first Superman comic book?       [Pred] DC Comics
+[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
+[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
+[Q] What superhero has been adapted to a number of other media? [Pred] Superman
 
 Answers based on SUMMARY (Questions are generated from Summary)
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [Ent] Superman  [Pred] Superman
-[Q] In what country did Superman first appear?  [Ent] American  [Pred] American
-[Q] What company published the first Superman comic book?       [Ent] Marvel Comics     [Pred] Marvel Comics
-[Q] Who created the character?  [Ent] Jerry Siegel      [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character?  [Ent] Joe Shuster       [Pred] Jerry Siegel and artist Joe Shuster
-[Q] What superhero has been adapted to a number of other media? [Ent] Superman  [Pred] Superman
+[Q] What is the name of the fictional superhero that first appeared in comic books?     [Pred] Superman
+[Q] In what country did Superman first appear?  [Pred] American
+[Q] What company published the first Superman comic book?       [Pred] Marvel Comics
+[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
+[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
+[Q] What superhero has been adapted to a number of other media? [Pred] Superman
 
 QAGS Score: 0.9166666666666666
 
 SOURCE Triples
-('they', 'closely resemble', 'standard set')
-('He', 'was', 'best selling character')
-('He', 'was', 'best selling character in comic books up until 1980s')
-('He', 'was', 'superhero character in comic books up until 1980s')
-('Superman', 'is fictional superhero', 'appeared in books published by DC Comics')
-('he', 'established', 'its conventions')
+('Superman', 'is fictional superhero', 'appeared in comic books')
+('Superman', 'is fictional superhero', 'first appeared in American comic books')
+('Superman', 'is fictional superhero', 'first appeared in American books published')
+('Superman', 'is fictional superhero', 'appeared in American comic books published')
+('character', 'was created by', 'writer Jerry Siegel')
 ...
 
 SUMMARY Triples
-('Superman', 'is fictional superhero', 'first appeared in American books published by Marvel Comics')
-('Superman', 'is fictional superhero', 'first appeared in American comic books published by Marvel Comics')
-('He', 'established', 'its conventions')
-('Superman', 'is fictional superhero', 'first appeared in American books')
-('Superman', 'is fictional superhero', 'first appeared in American comic books published')
+('Superman', 'is fictional superhero', 'appeared in comic books')
+('Superman', 'is fictional superhero', 'first appeared in American comic books')
+('Superman', 'is fictional superhero', 'first appeared in American books published')
+('Superman', 'is fictional superhero', 'appeared in American comic books published')
+('character', 'was created by', 'writer Jerry Siegel')
 ...
 
-Triple Score: 0.6774193548387096
+Triple Score: 0.7241379310344828
 
 Avg. ROUGE-1: 0.34586498627159923
 Avg. ROUGE-2: 0.24065908743388897
@@ -181,14 +178,14 @@ If you ask questions about the summary and the source document, you will get a s
 >>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.extract_qas(article, summary, verbose=True)
 Answers based on SOURCE (Questions are generated from Summary)
-[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Ent] Son Heung - min   [Pred] Son Heung-min
-[Q] What nationality is Son Heung-min?  [Ent] American  [Pred] South Korean
-[Q] What team does Son Heung-min play for?      [Ent] Tottenham Hotspur [Pred] Tottenham Hotspur
+[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Pred] Son Heung-min
+[Q] What nationality is Son Heung-min?  [Pred] South Korean
+[Q] What team does Son Heung-min play for?      [Pred] Tottenham Hotspur
 
 Answers based on SUMMARY (Questions are generated from Summary)
-[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Ent] Son Heung - min   [Pred] Son Heung-min
-[Q] What nationality is Son Heung-min?  [Ent] American  [Pred] American
-[Q] What team does Son Heung-min play for?      [Ent] Tottenham Hotspur [Pred] Tottenham Hotspur
+[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Pred] Son Heung-min
+[Q] What nationality is Son Heung-min?  [Pred] American
+[Q] What team does Son Heung-min play for?      [Pred] Tottenham Hotspur
 
 QAGS Score: 0.6666666666666666
 ```
