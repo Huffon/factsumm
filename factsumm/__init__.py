@@ -298,3 +298,10 @@ class FactSumm:
         )
         triple_score = self.extract_triples(source, summary, verbose)
         rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
+
+        return {
+            "fact_score": fact_score,
+            "qa_score": qags_score,
+            "triple_score": triple_score,
+            "rouge": (rouge_1, rouge_2, rouge_l),
+        }
