@@ -31,85 +31,76 @@ pip install .
 ```python
 >>> from factsumm import FactSumm
 >>> factsumm = FactSumm()
->>> article = "Superman is a fictional superhero who first appeared in American comic books published by DC Comics. The character was created by writer Jerry Siegel and artist Joe Shuster, and first appeared in the comic book Action Comics #1. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre. Although Superman was not the first superhero character, he popularized the superhero archetype and established its conventions. Superheroes are usually judged by how closely they resemble the standard set by Superman. He was the best-selling superhero character in American comic books up until the 1980s."
->>> summary = "Superman is a fictional superhero who first appeared in American comic books published by Marvel Comics. The character was created by writer Jerry Siegel and artist Joe Shuster. He popularized the superhero archetype and established its conventions. Superman has been adapted to a number of other media which includes radio serials, novels, movies, television shows and theatre."
+>>> article = "Lionel Andrés Messi (born 24 June 1987) is an Argentine professional footballer who plays as a forward and captains both Spanish club Barcelona and the Argentina national team. Often considered as the best player in the world and widely regarded as one of the greatest players of all time, Messi has won a record six Ballon d'Or awards, a record six European Golden Shoes, and in 2020 was named to the Ballon d'Or Dream Team."
+>>> "Lionel Andrés Messi (born 24 Aug 1997) is an Spanish professional footballer who plays as a forward and captains both Spanish club Barcelona and the Spanish national team."
 >>> factsumm(article, summary, verbose=True)
 SOURCE Entities
-1: [('Superman', 'PER'), ('American', 'MISC'), ('DC Comics', 'ORG')]
-2: [('Jerry Siegel', 'PER'), ('Joe Shuster', 'PER'), ('Action Comics', 'MISC')]
-3: [('Superman', 'PER')]
-4: [('Superman', 'PER')]
-5: [('Superman', 'PER')]
-6: [('American', 'MISC')]
+1: [('Lionel Andrés Messi', 'PERSON'), ('24 June 1987', 'DATE'), ('Argentine', 'NORP'), ('Spanish', 'NORP'), ('Barcelona',
+'GPE'), ('Argentina', 'GPE')]
+2: [('one', 'CARDINAL'), ('Messi', 'PERSON'), ('six', 'CARDINAL'), ('European Golden Shoes', 'WORK_OF_ART'), ('2020', 'DATE'),
+("the Ballon d'Or Dream Team", 'ORG')]
 
 SUMMARY Entities
-1: [('Superman', 'PER'), ('American', 'MISC'), ('Marvel Comics', 'ORG')]
-2: [('Jerry Siegel', 'PER'), ('Joe Shuster', 'PER')]
-3: []
-4: [('Superman', 'PER')]
+1: [('Lionel Andrés Messi', 'PERSON'), ('24 Aug 1997', 'DATE'), ('Spanish', 'NORP'), ('Barcelona', 'ORG')]
 
 SOURCE Facts
-('American', 'per:alternate_names', 'Superman')
-('Superman', 'per:employee_of', 'DC Comics')
-('Superman', 'per:origin', 'American')
-('American', 'per:employee_of', 'DC Comics')
+('Lionel Andrés Messi', 'per:origin', 'Argentine')
+('Spanish', 'per:date_of_birth', '24 June 1987')
+('Spanish', 'org:top_members/employees', 'Lionel Andrés Messi')
+('Spanish', 'org:members', 'Barcelona')
+('Lionel Andrés Messi', 'per:employee_of', 'Barcelona')
+('Lionel Andrés Messi', 'per:date_of_birth', '24 June 1987')
+('Barcelona', 'org:top_members/employees', 'Lionel Andrés Messi')
 
 SUMMARY Facts
-('American', 'per:alternate_names', 'Superman')
-('Superman', 'per:employee_of', 'Marvel Comics')
-('American', 'per:employee_of', 'Marvel Comics')
-('Superman', 'per:origin', 'American')
+('Lionel Andrés Messi', 'per:origin', 'Spanish')
+('Lionel Andrés Messi', 'per:date_of_birth', '24 Aug 1997')
+('Spanish', 'per:date_of_birth', '24 Aug 1997')
+('Spanish', 'org:top_members/employees', 'Lionel Andrés Messi')
+('Spanish', 'org:members', 'Barcelona')
+('Lionel Andrés Messi', 'per:employee_of', 'Barcelona')
+('Barcelona', 'org:top_members/employees', 'Lionel Andrés Messi')
 
 COMMON Facts
-('American', 'per:alternate_names', 'Superman')
-('Superman', 'per:origin', 'American')
+('Spanish', 'org:top_members/employees', 'Lionel Andrés Messi')
+('Spanish', 'org:members', 'Barcelona')
+('Lionel Andrés Messi', 'per:employee_of', 'Barcelona')
+('Barcelona', 'org:top_members/employees', 'Lionel Andrés Messi')
 
 DIFF Facts
-('American', 'per:employee_of', 'Marvel Comics')
-('Superman', 'per:employee_of', 'Marvel Comics')
+('Lionel Andrés Messi', 'per:origin', 'Spanish')
+('Lionel Andrés Messi', 'per:date_of_birth', '24 Aug 1997')
+('Spanish', 'per:date_of_birth', '24 Aug 1997')
 
-Fact Score: 0.5
-
+Fact Score: 0.5714285714285714
 
 Answers based on SOURCE (Questions are generated from Summary)
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [Pred] Superman
-[Q] In what country did Superman first appear?  [Pred] American
-[Q] What company published the first Superman comic book?       [Pred] DC Comics
-[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
-[Q] What superhero has been adapted to a number of other media? [Pred] Superman
+[Q] Who is the captain of the Spanish national team?    [Pred] <unanswerable>
+[Q] When was Lionel Andrés Messi born?  [Pred] 24 June 1987
+[Q] Lionel Andrés Messi is a professional footballer of what nationality?       [Pred] Argentine
+[Q] Lionel Messi is a captain of which Spanish club?    [Pred] Barcelona
 
 Answers based on SUMMARY (Questions are generated from Summary)
-[Q] What is the name of the fictional superhero that first appeared in comic books?     [Pred] Superman
-[Q] In what country did Superman first appear?  [Pred] American
-[Q] What company published the first Superman comic book?       [Pred] Marvel Comics
-[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
-[Q] Who created the character?  [Pred] Jerry Siegel and artist Joe Shuster
-[Q] What superhero has been adapted to a number of other media? [Pred] Superman
+[Q] Who is the captain of the Spanish national team?    [Pred] Lionel Andrés Messi
+[Q] When was Lionel Andrés Messi born?  [Pred] 24 Aug 1997
+[Q] Lionel Andrés Messi is a professional footballer of what nationality?       [Pred] Spanish
+[Q] Lionel Messi is a captain of which Spanish club?    [Pred] Barcelona
 
-QAGS Score: 0.9166666666666666
+QAGS Score: 0.3333333333333333
 
 SOURCE Triples
-('Superman', 'is fictional superhero', 'appeared in comic books')
-('Superman', 'is fictional superhero', 'first appeared in American comic books')
-('Superman', 'is fictional superhero', 'first appeared in American books published')
-('Superman', 'is fictional superhero', 'appeared in American comic books published')
-('character', 'was created by', 'writer Jerry Siegel')
-...
+('Messi', 'is', 'Argentine')
+('Messi', 'is', 'professional')
 
 SUMMARY Triples
-('Superman', 'is fictional superhero', 'appeared in comic books')
-('Superman', 'is fictional superhero', 'first appeared in American comic books')
-('Superman', 'is fictional superhero', 'first appeared in American books published')
-('Superman', 'is fictional superhero', 'appeared in American comic books published')
-('character', 'was created by', 'writer Jerry Siegel')
-...
+('Messi', 'is', 'Spanish')
+('Messi', 'is', 'professional')
 
-Triple Score: 0.7241379310344828
+Triple Score: 0.5
 
-Avg. ROUGE-1: 0.35379061371841153
-Avg. ROUGE-2: 0.2490566037735849
-Avg. ROUGE-L: 0.31046931407942235
+Avg. ROUGE-1: 0.4415584415584415
+Avg. ROUGE-2: 0.3287671232876712
+Avg. ROUGE-L: 0.4415584415584415
 ```
 
 <br>
@@ -125,30 +116,46 @@ From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to s
 ```python
 >>> from factsumm import FactSumm
 >>> factsumm = FactSumm()
->>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
->>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.extract_facts(article, summary, verbose=True)
 SOURCE Entities
-1: [('Son Heung - min', 'PER'), ('South Korean', 'MISC'), ('Premier League', 'MISC'), ('Tottenham Hotspur', 'ORG'), ('South Korea', 'LOC')]
+1: [('Lionel Andrés Messi', 'PERSON'), ('24 June 1987', 'DATE'), ('Argentine', 'NORP'), ('Spanish', 'NORP'), ('Barcelona',
+'GPE'), ('Argentina', 'GPE')]
+2: [('one', 'CARDINAL'), ('Messi', 'PERSON'), ('six', 'CARDINAL'), ('European Golden Shoes', 'WORK_OF_ART'), ('2020', 'DATE'),
+("the Ballon d'Or Dream Team", 'ORG')]
 
 SUMMARY Entities
-1: [('Son Heung - min', 'PER'), ('American', 'MISC'), ('Tottenham Hotspur', 'ORG')]
+1: [('Lionel Andrés Messi', 'PERSON'), ('24 Aug 1997', 'DATE'), ('Spanish', 'NORP'), ('Barcelona', 'ORG')]
 
 SOURCE Facts
-('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
-('Son Heung-min', 'per:origin', 'South Korean')
+('Lionel Andrés Messi', 'per:origin', 'Argentine')
+('Spanish', 'per:date_of_birth', '24 June 1987')
+('Spanish', 'org:top_members/employees', 'Lionel Andrés Messi')
+('Spanish', 'org:members', 'Barcelona')
+('Lionel Andrés Messi', 'per:employee_of', 'Barcelona')
+('Lionel Andrés Messi', 'per:date_of_birth', '24 June 1987')
+('Barcelona', 'org:top_members/employees', 'Lionel Andrés Messi')
 
 SUMMARY Facts
-('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
-('Son Heung-min', 'per:origin', 'American')
+('Lionel Andrés Messi', 'per:origin', 'Spanish')
+('Lionel Andrés Messi', 'per:date_of_birth', '24 Aug 1997')
+('Spanish', 'per:date_of_birth', '24 Aug 1997')
+('Spanish', 'org:top_members/employees', 'Lionel Andrés Messi')
+('Spanish', 'org:members', 'Barcelona')
+('Lionel Andrés Messi', 'per:employee_of', 'Barcelona')
+('Barcelona', 'org:top_members/employees', 'Lionel Andrés Messi')
 
 COMMON Facts
-('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
+('Spanish', 'org:top_members/employees', 'Lionel Andrés Messi')
+('Spanish', 'org:members', 'Barcelona')
+('Lionel Andrés Messi', 'per:employee_of', 'Barcelona')
+('Barcelona', 'org:top_members/employees', 'Lionel Andrés Messi')
 
 DIFF Facts
-('Son Heung-min', 'per:origin', 'American')
+('Lionel Andrés Messi', 'per:origin', 'Spanish')
+('Lionel Andrés Messi', 'per:date_of_birth', '24 Aug 1997')
+('Spanish', 'per:date_of_birth', '24 Aug 1997')
 
-Fact Score: 0.5
+Fact Score: 0.5714285714285714
 ```
 
 The triple-based module counts the overlap of fact triples between the generated summary and the source document.
@@ -164,20 +171,20 @@ If you ask questions about the summary and the source document, you will get a s
 ```python
 >>> from factsumm import FactSumm
 >>> factsumm = FactSumm()
->>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
->>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.extract_qas(article, summary, verbose=True)
 Answers based on SOURCE (Questions are generated from Summary)
-[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Pred] Son Heung-min
-[Q] What nationality is Son Heung-min?  [Pred] South Korean
-[Q] What team does Son Heung-min play for?      [Pred] Tottenham Hotspur
+[Q] Who is the captain of the Spanish national team?    [Pred] <unanswerable>
+[Q] When was Lionel Andrés Messi born?  [Pred] 24 June 1987
+[Q] Lionel Andrés Messi is a professional footballer of what nationality?       [Pred] Argentine
+[Q] Lionel Messi is a captain of which Spanish club?    [Pred] Barcelona
 
 Answers based on SUMMARY (Questions are generated from Summary)
-[Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Pred] Son Heung-min
-[Q] What nationality is Son Heung-min?  [Pred] American
-[Q] What team does Son Heung-min play for?      [Pred] Tottenham Hotspur
+[Q] Who is the captain of the Spanish national team?    [Pred] Lionel Andrés Messi
+[Q] When was Lionel Andrés Messi born?  [Pred] 24 Aug 1997
+[Q] Lionel Andrés Messi is a professional footballer of what nationality?       [Pred] Spanish
+[Q] Lionel Messi is a captain of which Spanish club?    [Pred] Barcelona
 
-QAGS Score: 0.6666666666666666
+QAGS Score: 0.3333333333333333
 ```
 
 <br>
@@ -187,36 +194,16 @@ QAGS Score: 0.6666666666666666
 ```python
 >>> from factsumm import FactSumm
 >>> factsumm = FactSumm()
->>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
->>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.extract_triples(article, summary, verbose=True)
 SOURCE Triples
-('Son Heung min', 'is', 'South Korean footballer')
-('Son Heung min', 'is', 'professional footballer')
-('Son Heung min', 'is professional footballer', 'plays')
-('min', 'is professional', 'plays')
-('Son Heung min', 'is', 'footballer')
-('Son Heung min', 'is', 'Korean footballer')
-('Son Heung min', 'is', 'Korean professional footballer')
-('Son Heung min', 'is footballer', 'plays as forward')
-('Son Heung min', 'is footballer', 'plays')
-('Son Heung min', 'is professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is professional footballer', 'plays as forward')
-('Son Heung min', 'is footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is', 'South Korean professional footballer')
+('Messi', 'is', 'Argentine')
+('Messi', 'is', 'professional')
 
 SUMMARY Triples
-('Son Heung min', 'is', 'professional footballer')
-('Son Heung min', 'is professional footballer', 'plays')
-('min', 'is professional', 'plays')
-('Son Heung min', 'is', 'footballer')
-('Son Heung min', 'is footballer', 'plays')
-('Son Heung min', 'is', 'American footballer')
-('Son Heung min', 'is', 'American professional footballer')
-('Son Heung min', 'is footballer', 'plays for Tottenham Hotspur')
-('Son Heung min', 'is professional footballer', 'plays for Tottenham Hotspur')
+('Messi', 'is', 'Spanish')
+('Messi', 'is', 'professional')
 
-Triple Score: 0.5555555555555556
+Triple Score: 0.5
 ```
 
 Stanford OpenIE can extract relationships from raw strings. But it's important to note that it's based on the open scheme, not the closed scheme (like `Triple-based Module`).
@@ -232,12 +219,10 @@ So the score for this module may be unstable.
 ```python
 >>> from factsumm import FactSumm
 >>> factsumm = FactSumm()
->>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
->>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.calculate_rouge(article, summary)
-Avg. ROUGE-1: 0.5714285714285714
-Avg. ROUGE-2: 0.3846153846153846
-Avg. ROUGE-L: 0.5714285714285714
+Avg. ROUGE-1: 0.4415584415584415
+Avg. ROUGE-2: 0.3287671232876712
+Avg. ROUGE-L: 0.4415584415584415
 ```
 
 Simple but effective word-level overlap ROUGE score
