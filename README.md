@@ -123,7 +123,7 @@ From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to s
 
 <br>
 
-### Triple-based Module
+### Triple-based Module ( *closed-scheme* )
 
 ```python
 >>> from factsumm import FactSumm
@@ -180,6 +180,7 @@ If you ask questions about the summary and the source document, you will get a s
 >>> article = "Son Heung-min is a South Korean professional footballer who plays as a forward for Premier League club Tottenham Hotspur and captains the South Korea national team."
 >>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.extract_qas(article, summary, verbose=True)
+Answers based on SOURCE (Questions are generated from Summary)
 [Q] Who is the name of the professional footballer who plays for Tottenham Hotspur?     [Ent] Son Heung - min   [Pred] Son Heung-min
 [Q] What nationality is Son Heung-min?  [Ent] American  [Pred] South Korean
 [Q] What team does Son Heung-min play for?      [Ent] Tottenham Hotspur [Pred] Tottenham Hotspur
@@ -194,7 +195,7 @@ QAGS Score: 0.6666666666666666
 
 <br>
 
-### OpenIE-based Module
+### OpenIE-based Module ( *open-scheme* )
 
 ```python
 >>> from factsumm import FactSumm
@@ -291,11 +292,6 @@ If you apply this library to any project, please cite:
 
 ## References
 
-- [HuggingFace Transformers](https://github.com/huggingface/transformers)
-- [stanford-openie-python](https://github.com/philipperemy/stanford-openie-python)
-- [BERTScore](https://github.com/Tiiiger/bert_score)
-- [PySBD](https://github.com/nipunsadvilkar/pySBD)
-- [SumEval](https://github.com/chakki-works/sumeval)
 - [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/abs/2104.14839.pdf)
 - [Assessing The Factual Accuracy of Generated Text](https://arxiv.org/abs/1905.13322.pdf)
 - [Asking and Answering Questions to Evaluate the Factual Consistency of Summaries](https://arxiv.org/abs/2004.04228)
