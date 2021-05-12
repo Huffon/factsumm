@@ -275,6 +275,19 @@ Simple but effective word-level overlap ROUGE score
 
 <br>
 
+### Citation
+
+```
+@misc{factsumm,
+  author       = {Heo, Hoon},
+  title        = {FactSumm: Factual Consistency Scorer for Abstractive Summarization},
+  howpublished = {\url{https://github.com/Huffon/factsumm}},
+  year         = {2021},
+}
+```
+
+<br>
+
 ## References
 
 - [The Factual Inconsistency Problem in Abstractive Text Summarization: A Survey](https://arxiv.org/abs/2104.14839.pdf)
