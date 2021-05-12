@@ -12,7 +12,10 @@ from factsumm.utils.level_sentence import load_qa, load_qg
 from factsumm.utils.utils import Config, qags_score
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 logging.getLogger("transformers").setLevel(logging.ERROR)
+logging.getLogger("flair").setLevel(logging.ERROR)
+logging.getLogger("openie").setLevel(logging.ERROR)
 
 
 class FactSumm:
@@ -200,7 +203,10 @@ class FactSumm:
             self._print_facts("common", common_facts)
             self._print_facts("diff", diff_facts)
 
-        fact_score = len(common_facts) / len(summary_facts)
+        if not summary_facts:
+            fact_score = 0.0
+        else:
+            fact_score = len(common_facts) / len(summary_facts)
         print(f"Fact Score: {fact_score}")
 
         return source_ents, summary_ents, fact_score
@@ -305,7 +311,11 @@ class FactSumm:
             self._print_triples("summary", summary_triples)
 
         common_triples = summary_triples.intersection(source_triples)
-        triple_score = len(common_triples) / len(summary_triples)
+
+        if not summary_triples:
+            triple_score = 0.0
+        else:
+            triple_score = len(common_triples) / len(summary_triples)
 
         print(f"Triple Score: {triple_score}\n")
 

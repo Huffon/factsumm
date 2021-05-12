@@ -1,5 +1,7 @@
 from typing import List, Tuple
 
+from flair.data import Sentence
+from flair.models import SequenceTagger
 from rich import print
 from transformers import LukeForEntityPairClassification, LukeTokenizer, pipeline
 
@@ -19,25 +21,52 @@ def load_ner(model: str) -> object:
     """
     print("Loading Named Entity Recognition Pipeline...")
 
-    ner = pipeline(
-        task="ner",
-        model=model,
-        tokenizer=model,
-        ignore_labels=[],
-        framework="pt",
-    )
+    if "flair" in model:
+        ner = SequenceTagger.load(model)
 
-    def extract_entities(sentences: List[str]):
-        result = list()
-        total_entities = ner(sentences)
+        def extract_entities(sentences: List[str]):
+            result = list()
 
-        if isinstance(total_entities[0], dict):
-            total_entities = [total_entities]
+            for sentence in sentences:
+                sentence = Sentence(sentence)
+                ner.predict(sentence)
+                line_result = sentence.to_dict(tag_type="ner")
 
-        for line_entities in total_entities:
-            result.append(grouped_entities(line_entities))
+                cache = dict()
+                dedup = list()
 
-        return result
+                for entity in line_result["entities"]:
+                    if entity["text"] not in cache:
+                        dedup.append({
+                            "word": entity["text"],
+                            "entity": entity["labels"][0].value,
+                            "start": entity["start_pos"],
+                            "end": entity["end_pos"],
+                        })
+                        cache[entity["text"]] = None
+                result.append(dedup)
+
+            return result
+    else:
+        ner = pipeline(
+            task="ner",
+            model=model,
+            tokenizer=model,
+            ignore_labels=[],
+            framework="pt",
+        )
+
+        def extract_entities(sentences: List[str]):
+            result = list()
+            total_entities = ner(sentences)
+
+            if isinstance(total_entities[0], dict):
+                total_entities = [total_entities]
+
+            for line_entities in total_entities:
+                result.append(grouped_entities(line_entities))
+
+            return result
 
     return extract_entities
 

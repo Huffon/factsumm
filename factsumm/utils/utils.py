@@ -10,7 +10,7 @@ from transformers import pipeline
 
 @dataclass
 class Config:
-    NER_MODEL: str = "elastic/distilbert-base-cased-finetuned-conll03-english"
+    NER_MODEL: str = "flair/ner-english-ontonotes-fast"
     REL_MODEL: str = "studio-ousia/luke-large-finetuned-tacred"
     QG_MODEL: str = "mrm8488/t5-base-finetuned-question-generation-ap"
     QA_MODEL: str = "deepset/roberta-base-squad2"
