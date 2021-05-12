@@ -138,6 +138,31 @@ class FactSumm:
             print(fact)
         print()
 
+    def _filter_out(self, sources: Set, summaries: Set):
+        """
+        Filter out triples that don't share a subject and relation
+
+        Args:
+            sources (Set): set of triples from source
+            summaries (Set): set of triples from summary
+
+        Returns:
+            Tuple[Set, Set]: filtered sources and summaries
+
+        """
+        source_tuple = {(source[0], source[1]) for source in sources}
+        summary_tuple = {(summary[0], summary[1]) for summary in summaries}
+
+        sources = {
+            source for source in sources
+            if (source[0], source[1]) in summary_tuple
+        }
+        summaries = {
+            summary for summary in summaries
+            if (summary[0], summary[1]) in source_tuple
+        }
+        return sources, summaries
+
     def extract_facts(self, source: str, summary: str, verbose: bool = False):
         """
         Extract (head_entity, relation, tail_entity) relation triple using NER & RE module
@@ -164,6 +189,12 @@ class FactSumm:
         # extract entity-based triple: (head, relation, tail)
         source_facts = self.get_facts(source_lines, source_ents)
         summary_facts = self.get_facts(summary_lines, summary_ents)
+
+        # filter out some facts
+        source_facts, summary_facts = self._filter_out(
+            source_facts,
+            summary_facts,
+        )
 
         common_facts = summary_facts.intersection(source_facts)
         diff_facts = summary_facts.difference(source_facts)
@@ -272,6 +303,11 @@ class FactSumm:
             triple["relation"],
             triple["object"],
         ) for triple in self.ie(summary)}
+
+        source_triples, summary_triples = self._filter_out(
+            source_triples,
+            summary_triples,
+        )
 
         if verbose:
             self._print_triples("source", source_triples)

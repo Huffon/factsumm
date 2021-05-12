@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+from rich import print
 from transformers import LukeForEntityPairClassification, LukeTokenizer, pipeline
 
 from factsumm.utils.utils import grouped_entities

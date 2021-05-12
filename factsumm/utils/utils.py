@@ -4,6 +4,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, List
 
+from rich import print
 from transformers import pipeline
 
 
