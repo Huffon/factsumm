@@ -113,24 +113,15 @@ class FactSumm:
 
         """
         source_lines = self._segment(source)
-        num_lines = len(source_lines)
 
-        rouge_1 = 0.0
-        rouge_2 = 0.0
-        rouge_l = 0.0
-        for source_line in source_lines:
-            rouge_1 += self.rouge.rouge_n(summary, source_line, 1)
-            rouge_2 += self.rouge.rouge_n(summary, source_line, 2)
-            rouge_l += self.rouge.rouge_l(summary, source_line)
-
-        avg_rouge_1 = rouge_1 / num_lines
-        avg_rouge_2 = rouge_2 / num_lines
-        avg_rouge_l = rouge_l / num_lines
+        rouge_1 = self.rouge.rouge_n(summary, source_lines, 1)
+        rouge_2 = self.rouge.rouge_n(summary, source_lines, 2)
+        rouge_l = self.rouge.rouge_l(summary, source_lines)
 
         print(
-            f"Avg. ROUGE-1: {avg_rouge_1}\nAvg. ROUGE-2: {avg_rouge_2}\nAvg. ROUGE-L: {avg_rouge_l}"
+            f"Avg. ROUGE-1: {rouge_1}\nAvg. ROUGE-2: {rouge_2}\nAvg. ROUGE-L: {rouge_l}"
         )
-        return avg_rouge_1, avg_rouge_2, avg_rouge_l
+        return rouge_1, rouge_2, rouge_l
 
     def _print_facts(self, mode: str, facts: Set[Tuple]):
         print(f"{mode.upper()} Facts")
