@@ -135,30 +135,20 @@ SUMMARY Entities
 1: [('Son Heung - min', 'PER'), ('American', 'MISC'), ('Tottenham Hotspur', 'ORG')]
 
 SOURCE Facts
-('Premier League', 'org:members', 'Tottenham Hotspur')
-('South Korean', 'per:origin', 'South Korea')
 ('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
-('South Korea', 'org:top_members/employees', 'Son Heung-min')
-('South Korea', 'per:origin', 'South Korean')
-('South Korean', 'org:top_members/employees', 'Son Heung-min')
 ('Son Heung-min', 'per:origin', 'South Korean')
-('Tottenham Hotspur', 'org:member_of', 'Premier League')
-('Son Heung-min', 'per:countries_of_residence', 'South Korea')
-('South Korean', 'per:employee_of', 'Tottenham Hotspur')
 
 SUMMARY Facts
-('Son Heung-min', 'per:origin', 'American')
-('American', 'per:employee_of', 'Tottenham Hotspur')
 ('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
+('Son Heung-min', 'per:origin', 'American')
 
 COMMON Facts
 ('Son Heung-min', 'per:employee_of', 'Tottenham Hotspur')
 
 DIFF Facts
 ('Son Heung-min', 'per:origin', 'American')
-('American', 'per:employee_of', 'Tottenham Hotspur')
 
-Fact Score: 0.3333333333333333
+Fact Score: 0.5
 ```
 
 The triple-based module counts the overlap of fact triples between the generated summary and the source document.
@@ -201,50 +191,32 @@ QAGS Score: 0.6666666666666666
 >>> summary = "Son Heung-min is a American professional footballer who plays for Tottenham Hotspur."
 >>> factsumm.extract_triples(article, summary, verbose=True)
 SOURCE Triples
-('Son Heung min', 'is Korean professional footballer', 'plays')
-('Son Heung min', 'is', 'South Korean professional footballer')
-('Son Heung min', 'is', 'footballer')
-('Son Heung min', 'is professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is Korean professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is', 'Korean professional footballer')
-('Son Heung min', 'is Korean professional footballer', 'plays as forward')
-('Son Heung min', 'is', 'professional footballer')
-('Son Heung min', 'is South Korean footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is South Korean professional footballer', 'plays')
-('min', 'is professional', 'plays')
-('Son Heung min', 'is footballer', 'plays')
-('Son Heung min', 'is footballer', 'plays as forward')
-('Son Heung min', 'is South Korean professional footballer', 'plays as forward')
-('Son Heung min', 'is South Korean professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is South Korean footballer', 'plays as forward')
-('Son Heung min', 'is footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is', 'Korean footballer')
 ('Son Heung min', 'is', 'South Korean footballer')
-('min', 'is Korean', 'plays')
-('Son Heung min', 'is Korean footballer', 'plays as forward')
+('Son Heung min', 'is', 'professional footballer')
 ('Son Heung min', 'is professional footballer', 'plays')
-('Son Heung min', 'is South Korean footballer', 'plays')
-('Son Heung min', 'is Korean footballer', 'plays as forward for Premier League club Tottenham Hotspur')
-('Son Heung min', 'is Korean footballer', 'plays')
+('min', 'is professional', 'plays')
+('Son Heung min', 'is', 'footballer')
+('Son Heung min', 'is', 'Korean footballer')
+('Son Heung min', 'is', 'Korean professional footballer')
+('Son Heung min', 'is footballer', 'plays as forward')
+('Son Heung min', 'is footballer', 'plays')
+('Son Heung min', 'is professional footballer', 'plays as forward for Premier League club Tottenham Hotspur')
 ('Son Heung min', 'is professional footballer', 'plays as forward')
+('Son Heung min', 'is footballer', 'plays as forward for Premier League club Tottenham Hotspur')
+('Son Heung min', 'is', 'South Korean professional footballer')
 
 SUMMARY Triples
-('min', 'is professional', 'plays')
-('Son Heung min', 'is professional footballer', 'plays')
-('Son Heung min', 'is footballer', 'plays')
-('Son Heung min', 'is American professional footballer', 'plays')
-('Son Heung min', 'is', 'American footballer')
 ('Son Heung min', 'is', 'professional footballer')
+('Son Heung min', 'is professional footballer', 'plays')
+('min', 'is professional', 'plays')
 ('Son Heung min', 'is', 'footballer')
-('Son Heung min', 'is American footballer', 'plays for Tottenham Hotspur')
+('Son Heung min', 'is footballer', 'plays')
+('Son Heung min', 'is', 'American footballer')
 ('Son Heung min', 'is', 'American professional footballer')
-('Son Heung min', 'is professional footballer', 'plays for Tottenham Hotspur')
 ('Son Heung min', 'is footballer', 'plays for Tottenham Hotspur')
-('Son Heung min', 'is American professional footballer', 'plays for Tottenham Hotspur')
-('min', 'is American', 'plays')
-('Son Heung min', 'is American footballer', 'plays')
+('Son Heung min', 'is professional footballer', 'plays for Tottenham Hotspur')
 
-Triple Score: 0.35714285714285715
+Triple Score: 0.5555555555555556
 ```
 
 Stanford OpenIE can extract relationships from raw strings. But it's important to note that it's based on the open scheme, not the closed scheme (like `Triple-based Module`).
