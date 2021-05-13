@@ -107,6 +107,11 @@ Triple Score: 0.5
 Avg. ROUGE-1: 0.4415584415584415
 Avg. ROUGE-2: 0.3287671232876712
 Avg. ROUGE-L: 0.4415584415584415
+
+BERTScore Score
+Precision: 0.9151781797409058
+Recall: 0.9141832590103149
+F1: 0.9150083661079407
 ```
 
 <br>
@@ -232,6 +237,22 @@ Avg. ROUGE-L: 0.4415584415584415
 ```
 
 Simple but effective word-level overlap ROUGE score
+
+<br>
+
+### BERTScore Module
+
+```python
+>>> from factsumm import FactSumm
+>>> factsumm = FactSumm()
+>>> factsumm.calculate_bert_score(article, summary)
+BERTScore Score
+Precision: 0.9151781797409058
+Recall: 0.9141832590103149
+F1: 0.9150083661079407
+```
+
+[BERTScore](https://github.com/Tiiiger/bert_score) can be used to calculate the similarity between each source sentence and the summary sentence
 
 <br>
 

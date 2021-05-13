@@ -1,5 +1,6 @@
 from typing import List
 
+from bert_score import BERTScorer
 from rich import print
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
@@ -111,4 +112,18 @@ def load_qa(model: str):
     return answer_question
 
 
-# TODO: NLI, FactCC
+def load_bert_score(model: str):
+    """
+    Load BERTScore model from HuggingFace hub
+
+    Args:
+        model (str): model name to be loaded
+
+    Returns:
+        function: BERTScore score function
+
+    """
+    print("Loading BERTScore Pipeline...")
+
+    scorer = BERTScorer(model_type=model, lang="en", rescale_with_baseline=True)
+    return scorer.score
