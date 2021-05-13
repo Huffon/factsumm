@@ -4,7 +4,6 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, List
 
-from rich import print
 from transformers import pipeline
 
 
@@ -18,7 +17,7 @@ class Config:
     BERT_SCORE_MODEL: str = "microsoft/deberta-base-mnli"
 
 
-def grouped_entities(entities: List[Dict]):
+def grouped_entities(entities: List[Dict]) -> List:
     """
     Group entities to concatenate BIO
 
@@ -120,7 +119,7 @@ def load_summarizer(model: str) -> object:
     )
 
 
-def f1_score(gold_answer: str, pred_answer: str):
+def f1_score(gold_answer: str, pred_answer: str) -> float:
     """
     Calculate token-level F1 score
 
@@ -158,7 +157,7 @@ def f1_score(gold_answer: str, pred_answer: str):
         return int(gold_answer == pred_answer)
 
     if num_same_toks == 0:
-        return 0
+        return 0.0
 
     precision = 1.0 * num_same_toks / len(pred_toks)
     recall = 1.0 * num_same_toks / len(gold_toks)
@@ -166,7 +165,7 @@ def f1_score(gold_answer: str, pred_answer: str):
     return f1
 
 
-def qags_score(source_answers: List, summary_answers: List):
+def qags_score(source_answers: List, summary_answers: List) -> float:
     """
     Caculate QAGS Score
 
@@ -184,21 +183,6 @@ def qags_score(source_answers: List, summary_answers: List):
         summary_answer = summary_answer["prediction"]
         scores.append(f1_score(source_answer, summary_answer))
 
+    if not scores:
+        return 0.0
     return sum(scores) / len(scores)
-
-
-if __name__ == "__main__":
-    model = "elastic/distilbert-base-cased-finetuned-conll03-english"
-
-    article = "Marie Curie was a Polish and French physicist and chemist who conducted pioneering research on radioactivity. As the first of the Curie family legacy of five Nobel Prizes, she was the first woman to win a Nobel Prize, the first person and the only woman to win the Nobel Prize twice, and the only person to win the Nobel Prize in two scientific fields. She was the first woman to become a professor at the University of Paris in 1906. She was born in Warsaw, in what was then the Kingdom of Poland, part of the Russian Empire. She studied at Warsaw's clandestine Flying University and began her practical scientific training in Warsaw. In 1891, aged 24, she followed her elder sister Bronisława to study in Paris, where she earned her higher degrees and conducted her subsequent scientific work. In 1895 she married the French physicist Pierre Curie, and she shared the 1903 Nobel Prize in Physics with him and with the physicist Henri Becquerel for their pioneering work developing the theory of 'radioactivity'—a term she coined. In 1906 Pierre Curie died in a Paris street accident. Marie won the 1911 Nobel Prize in Chemistry for her discovery of the elements polonium and radium, using techniques she invented for isolating radioactive isotopes."
-
-    ner = pipeline(
-        task="ner",
-        model=model,
-        tokenizer=model,
-        ignore_labels=[],
-        framework="pt",
-    )
-
-    tags = ner(article)
-    print(grouped_entities(tags))

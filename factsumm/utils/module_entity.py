@@ -28,7 +28,7 @@ def load_ner(model: str) -> object:
         except UnboundLocalError:
             print("Input model is not supported by Flair")
 
-        def extract_entities(sentences: List[str]):
+        def extract_entities_flair(sentences: List[str]):
             result = list()
 
             for sentence in sentences:
@@ -51,6 +51,8 @@ def load_ner(model: str) -> object:
                 result.append(dedup)
 
             return result
+
+        return extract_entities_flair
     else:
         try:
             ner = pipeline(
@@ -63,7 +65,7 @@ def load_ner(model: str) -> object:
         except (HTTPError, OSError):
             print("Input model is not supported by HuggingFace Hub")
 
-        def extract_entities(sentences: List[str]):
+        def extract_entities_hf(sentences: List[str]):
             result = list()
             total_entities = ner(sentences)
 
@@ -75,7 +77,7 @@ def load_ner(model: str) -> object:
 
             return result
 
-    return extract_entities
+        return extract_entities_hf
 
 
 def load_rel(model: str):
