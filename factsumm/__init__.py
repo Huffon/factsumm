@@ -15,7 +15,6 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 logging.getLogger("transformers").setLevel(logging.ERROR)
 logging.getLogger("flair").setLevel(logging.ERROR)
-logging.getLogger("openie").setLevel(logging.ERROR)
 
 
 class FactSumm:
@@ -28,6 +27,17 @@ class FactSumm:
         qa_model: str = None,
         bert_score_model: str = None,
     ):
+        """
+        FactSumm object used to calculate Factual Consistency score of Abstractive Summarization model
+
+        Args:
+            ner_model (str, optional): NER model to be used (Flair or HuggingFace). Defaults to None.
+            rel_model (str, optional): RE model to be used (HuggingFace). Defaults to None.
+            qg_model (str, optional): QA model to be used (HuggingFace). Defaults to None.
+            qa_model (str, optional): QG model to be used (HuggingFace). Defaults to None.
+            bert_score_model (str, optional): BERTScore model to be used (HuggingFace). Defaults to None.
+
+        """
         self.config = Config()
         self.segmenter = pysbd.Segmenter(language="en", clean=False)
         self.rouge = RougeCalculator(stopwords=True, lang="en")
@@ -44,7 +54,7 @@ class FactSumm:
         self,
         lines: List[str],
         total_entities: Union[List[Dict], List[List[Dict]]],
-    ):
+    ) -> List:
         """
         Build entity permutations for Relation Extraction
 
@@ -74,7 +84,7 @@ class FactSumm:
 
         return total_perms
 
-    def get_facts(self, lines: List[str], entities: List[List[Dict]]):
+    def get_facts(self, lines: List[str], entities: List[List[Dict]]) -> Set:
         """
         Get fact triples using Relation Extraction model
 
@@ -94,7 +104,17 @@ class FactSumm:
 
         return set(triples)
 
-    def _segment(self, text: str):
+    def _segment(self, text: str) -> List[str]:
+        """
+        Segment input text into (possibly) multiple sentences
+
+        Args:
+            text (str): text to be segmented
+
+        Returns:
+            List[str]: list of segmented lines
+
+        """
         return [line.strip() for line in self.segmenter.segment(text)]
 
     def _print_entities(self, mode: str, total_entities: List[List[Dict]]):
@@ -105,7 +125,11 @@ class FactSumm:
         print()
         # yapf:enable
 
-    def calculate_rouge(self, source: str, summary: str):
+    def calculate_rouge(
+        self,
+        source: str,
+        summary: str,
+    ) -> Tuple[float, float, float]:
         """
         Calculate ROUGE score
 
@@ -134,7 +158,7 @@ class FactSumm:
             print(fact)
         print()
 
-    def _filter_out(self, sources: Set, summaries: Set):
+    def _filter_out(self, sources: Set, summaries: Set) -> Tuple[Set, Set]:
         """
         Filter out triples that don't share a subject and relation for comparability
 
@@ -228,7 +252,7 @@ class FactSumm:
         source_ents: List = None,
         summary_ents: List = None,
         verbose: bool = False,
-    ):
+    ) -> float:
         """
         Extract Question & Answering Pair generated from Question Generation module
 
@@ -323,7 +347,11 @@ class FactSumm:
 
         return triple_score
 
-    def calculate_bert_score(self, source: str, summary: str):
+    def calculate_bert_score(
+        self,
+        source: str,
+        summary: str,
+    ) -> List[float]:
         """
         Calculate BERTScore
 
@@ -333,12 +361,14 @@ class FactSumm:
             source (str): original source
             summary (str): generated summary
 
-        """
-        add_dummy = False
+        Returns:
+            List: (Precision, Recall, F1) BERTScore list
 
+        """
         if isinstance(self.bert_score, str):
             self.bert_score = load_bert_score(self.bert_score)
 
+        # BUG: When len(source_lines) == 1, bmm error raises
         source_lines = self._segment(source)
         summary_lines = [summary, "dummy"]
 
@@ -358,35 +388,66 @@ class FactSumm:
 
     def __call__(
         self,
-        source: str,
-        summary: str,
+        sources: Union[List[str], str],
+        summaries: Union[List[str], str],
         verbose: bool = False,
-    ):
-        source_ents, summary_ents, fact_score = self.extract_facts(
-            source,
-            summary,
-            verbose,
-        )
+    ) -> Dict:
+        if isinstance(sources, str) and isinstance(summaries, str):
+            sources = [sources]
+            summaries = [summaries]
 
-        qags_score = self.extract_qas(
-            source,
-            summary,
-            source_ents,
-            summary_ents,
-            verbose,
-        )
+        if len(sources) != len(summaries):
+            # yapf:disable
+            raise ValueError("`sources` and `summaries` must have the same number of elements!")
+            # yapf:enable
 
-        triple_score = self.extract_triples(source, summary, verbose)
+        num_pairs = len(sources)
 
-        rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
+        fact_scores = 0
+        qags_scores = 0
+        triple_scores = 0
+        rouges = [0, 0, 0]
+        bert_scores = [0, 0, 0]
 
-        bert_scores = self.calculate_bert_score(source, summary)
+        for source, summary in zip(sources, summaries):
+            source_ents, summary_ents, fact_score = self.extract_facts(
+                source,
+                summary,
+                verbose,
+            )
+            fact_scores += fact_score
+
+            qags_score = self.extract_qas(
+                source,
+                summary,
+                source_ents,
+                summary_ents,
+                verbose,
+            )
+            qags_scores += qags_score
+
+            triple_score = self.extract_triples(source, summary, verbose)
+            triple_scores += triple_score
+
+            rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
+            rouges[0] += rouge_1
+            rouges[1] += rouge_2
+            rouges[2] += rouge_l
+
+            bert_score = self.calculate_bert_score(source, summary)
+            bert_scores[0] += bert_score[0]
+            bert_scores[1] += bert_score[1]
+            bert_scores[2] += bert_score[2]
 
         return {
-            "fact_score": fact_score,
-            "qa_score": qags_score,
-            "triple_score": triple_score,
-            "rouge": (rouge_1, rouge_2, rouge_l),
+            "fact_score": fact_scores / num_pairs,
+            "qa_score": qags_scores / num_pairs,
+            "triple_score": triple_scores / num_pairs,
+            "rouge": (
+                rouges[0] / num_pairs,
+                rouges[1] / num_pairs,
+                rouges[2] / num_pairs,
+            ),
             "bert_score": {
                 "precision": bert_scores[0],
                 "recall": bert_scores[1],
