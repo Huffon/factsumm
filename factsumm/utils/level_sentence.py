@@ -1,6 +1,7 @@
 from typing import List
 
 from bert_score import BERTScorer
+from requests import HTTPError
 from rich import print
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
@@ -18,8 +19,11 @@ def load_qg(model: str):
     """
     print("Loading Question Generation Pipeline...")
 
-    tokenizer = AutoTokenizer.from_pretrained(model)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model)
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model)
+    except (HTTPError, OSError):
+        print("Input model is not supported by HuggingFace Hub")
 
     def generate_question(sentences: List[str], total_entities: List):
         """
@@ -79,12 +83,15 @@ def load_qa(model: str):
     """
     print("Loading Question Answering Pipeline...")
 
-    qa = pipeline(
-        "question-answering",
-        model=model,
-        tokenizer=model,
-        framework="pt",
-    )
+    try:
+        qa = pipeline(
+            "question-answering",
+            model=model,
+            tokenizer=model,
+            framework="pt",
+        )
+    except (HTTPError, OSError):
+        print("Input model is not supported by HuggingFace Hub")
 
     def answer_question(context: str, qa_pairs: List):
         """
@@ -125,5 +132,12 @@ def load_bert_score(model: str):
     """
     print("Loading BERTScore Pipeline...")
 
-    scorer = BERTScorer(model_type=model, lang="en", rescale_with_baseline=True)
-    return scorer.score
+    try:
+        scorer = BERTScorer(
+            model_type=model,
+            lang="en",
+            rescale_with_baseline=True,
+        )
+        return scorer.score
+    except KeyError:
+        print("Input model is not supported by BERTScore")

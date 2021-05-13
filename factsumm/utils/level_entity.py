@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from flair.data import Sentence
 from flair.models import SequenceTagger
+from requests import HTTPError
 from rich import print
 from transformers import LukeForEntityPairClassification, LukeTokenizer, pipeline
 
@@ -22,7 +23,10 @@ def load_ner(model: str) -> object:
     print("Loading Named Entity Recognition Pipeline...")
 
     if "flair" in model:
-        ner = SequenceTagger.load(model)
+        try:
+            ner = SequenceTagger.load(model)
+        except UnboundLocalError:
+            print("Input model is not supported by Flair")
 
         def extract_entities(sentences: List[str]):
             result = list()
@@ -48,13 +52,16 @@ def load_ner(model: str) -> object:
 
             return result
     else:
-        ner = pipeline(
-            task="ner",
-            model=model,
-            tokenizer=model,
-            ignore_labels=[],
-            framework="pt",
-        )
+        try:
+            ner = pipeline(
+                task="ner",
+                model=model,
+                tokenizer=model,
+                ignore_labels=[],
+                framework="pt",
+            )
+        except (HTTPError, OSError):
+            print("Input model is not supported by HuggingFace Hub")
 
         def extract_entities(sentences: List[str]):
             result = list()
@@ -84,8 +91,11 @@ def load_rel(model: str):
     """
     print("Loading Relation Extraction Pipeline...")
 
-    tokenizer = LukeTokenizer.from_pretrained(model)
-    model = LukeForEntityPairClassification.from_pretrained(model)
+    try:
+        tokenizer = LukeTokenizer.from_pretrained(model)
+        model = LukeForEntityPairClassification.from_pretrained(model)
+    except (HTTPError, OSError):
+        print("Input model is not supported by HuggingFace Hub")
 
     def extract_relation(sentences: List) -> List[Tuple]:
         """

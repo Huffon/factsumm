@@ -356,7 +356,12 @@ class FactSumm:
 
         return filtered_scores
 
-    def __call__(self, source: str, summary: str, verbose: bool = False):
+    def __call__(
+        self,
+        source: str,
+        summary: str,
+        verbose: bool = False,
+    ):
         source_ents, summary_ents, fact_score = self.extract_facts(
             source,
             summary,
