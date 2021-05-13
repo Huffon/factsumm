@@ -8,7 +8,7 @@ from rich import print
 from sumeval.metrics.rouge import RougeCalculator
 
 from factsumm.utils.level_entity import load_ie, load_ner, load_rel
-from factsumm.utils.level_sentence import load_qa, load_qg
+from factsumm.utils.level_sentence import load_bert_score, load_qa, load_qg
 from factsumm.utils.utils import Config, qags_score
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -26,6 +26,7 @@ class FactSumm:
         rel_model: str = None,
         qg_model: str = None,
         qa_model: str = None,
+        bert_score_model: str = None,
     ):
         self.config = Config()
         self.segmenter = pysbd.Segmenter(language="en", clean=False)
@@ -36,6 +37,7 @@ class FactSumm:
         self.rel = rel_model if rel_model is not None else self.config.REL_MODEL
         self.qg = qg_model if qg_model is not None else self.config.QG_MODEL
         self.qa = qa_model if qa_model is not None else self.config.QA_MODEL
+        self.bert_score = bert_score_model if bert_score_model is not None else self.config.BERT_SCORE_MODEL
         self.ie = None
 
     def build_perm(
@@ -321,12 +323,46 @@ class FactSumm:
 
         return triple_score
 
+    def calculate_bert_score(self, source: str, summary: str):
+        """
+        Calculate BERTScore
+
+            See also https://arxiv.org/abs/2005.03754
+
+        Args:
+            source (str): original source
+            summary (str): generated summary
+
+        """
+        add_dummy = False
+
+        if isinstance(self.bert_score, str):
+            self.bert_score = load_bert_score(self.bert_score)
+
+        source_lines = self._segment(source)
+        summary_lines = [summary, "dummy"]
+
+        scores = self.bert_score(summary_lines, source_lines)
+        filtered_scores = list()
+
+        for score in scores:
+            score = score.tolist()
+            score.pop(-1)
+            filtered_scores.append(sum(score) / len(score))
+
+        print(
+            f"BERTScore Score\nPrecision: {filtered_scores[0]}\nRecall: {filtered_scores[1]}\nF1: {filtered_scores[2]}"
+        )
+
+        return filtered_scores
+
     def __call__(self, source: str, summary: str, verbose: bool = False):
         source_ents, summary_ents, fact_score = self.extract_facts(
             source,
             summary,
             verbose,
         )
+
         qags_score = self.extract_qas(
             source,
             summary,
@@ -334,12 +370,21 @@ class FactSumm:
             summary_ents,
             verbose,
         )
+
         triple_score = self.extract_triples(source, summary, verbose)
+
         rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
+
+        bert_scores = self.calculate_bert_score(source, summary)
 
         return {
             "fact_score": fact_score,
             "qa_score": qags_score,
             "triple_score": triple_score,
             "rouge": (rouge_1, rouge_2, rouge_l),
+            "bert_score": {
+                "precision": bert_scores[0],
+                "recall": bert_scores[1],
+                "f1": bert_scores[2],
+            },
         }
