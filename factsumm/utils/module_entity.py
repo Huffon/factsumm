@@ -9,12 +9,13 @@ from transformers import LukeForEntityPairClassification, LukeTokenizer, pipelin
 from factsumm.utils.utils import grouped_entities
 
 
-def load_ner(model: str) -> object:
+def load_ner(model: str, device: str) -> object:
     """
     Load Named Entity Recognition model from HuggingFace hub
 
     Args:
         model (str): model name to be loaded
+        device (str): device info
 
     Returns:
         object: Pipeline-based Named Entity Recognition model
@@ -24,7 +25,7 @@ def load_ner(model: str) -> object:
 
     if "flair" in model:
         try:
-            ner = SequenceTagger.load(model)
+            ner = SequenceTagger.load(model).to(device)
         except UnboundLocalError:
             print("Input model is not supported by Flair")
 
@@ -61,6 +62,7 @@ def load_ner(model: str) -> object:
                 tokenizer=model,
                 ignore_labels=[],
                 framework="pt",
+                device=-1 if device == "cpu" else 0,
             )
         except (HTTPError, OSError):
             print("Input model is not supported by HuggingFace Hub")
@@ -80,12 +82,13 @@ def load_ner(model: str) -> object:
         return extract_entities_hf
 
 
-def load_rel(model: str):
+def load_rel(model: str, device: str):
     """
     Load LUKE for Relation Extraction model and return its applicable function
 
     Args:
         model (str): model name to be loaded
+        device (str): device info
 
     Returns:
         function: LUKE-based Relation Extraction function
@@ -94,8 +97,10 @@ def load_rel(model: str):
     print("Loading Relation Extraction Pipeline...")
 
     try:
+        # yapf:disable
         tokenizer = LukeTokenizer.from_pretrained(model)
-        model = LukeForEntityPairClassification.from_pretrained(model)
+        model = LukeForEntityPairClassification.from_pretrained(model).to(device)
+        # yapf:enable
     except (HTTPError, OSError):
         print("Input model is not supported by HuggingFace Hub")
 
@@ -123,7 +128,7 @@ def load_rel(model: str):
                     (sentence["spans"][-1][0], sentence["spans"][-1][-1]),
                 ],
                 return_tensors="pt",
-            )
+            ).to(device)
             outputs = model(**tokens)
             predicted_id = int(outputs.logits[0].argmax())
             relation = model.config.id2label[predicted_id]

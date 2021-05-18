@@ -184,7 +184,13 @@ class FactSumm:
         }
         return sources, summaries
 
-    def extract_facts(self, source: str, summary: str, verbose: bool = False):
+    def extract_facts(
+        self,
+        source: str,
+        summary: str,
+        verbose: bool = False,
+        device: str = "cpu",
+    ):
         """
         Extract (head_entity, relation, tail_entity) relation triple using NER & RE module
 
@@ -194,11 +200,12 @@ class FactSumm:
             source (str): original source
             summary (str): generated summary
             verbose (bool, optional): print verbose option. Defaults to False.
+            device (str): device info
 
         """
         if isinstance(self.ner, str) and isinstance(self.rel, str):
-            self.ner = load_ner(self.ner)
-            self.rel = load_rel(self.rel)
+            self.ner = load_ner(self.ner, device)
+            self.rel = load_rel(self.rel, device)
 
         source_lines = self._segment(source)
         summary_lines = self._segment(summary)
@@ -253,6 +260,7 @@ class FactSumm:
         source_ents: List = None,
         summary_ents: List = None,
         verbose: bool = False,
+        device: str = "cpu",
     ) -> float:
         """
         Extract Question & Answering Pair generated from Question Generation module
@@ -265,14 +273,15 @@ class FactSumm:
             source_ents (List, optional): named entities extracted from source. Defaults to None.
             summary_ents (List, optional): named entities extracted from source. Defaults to None.
             verbose (bool, optional): print verbose option. Defaults to False.
+            device (str): device info
 
         """
         if isinstance(self.qg, str) and isinstance(self.qa, str):
-            self.qg = load_qg(self.qg)
-            self.qa = load_qa(self.qa)
+            self.qg = load_qg(self.qg, device)
+            self.qa = load_qa(self.qa, device)
 
         if isinstance(self.ner, str):
-            self.ner = load_ner(self.ner)
+            self.ner = load_ner(self.ner, device)
 
         source_lines = self._segment(source)
         summary_lines = self._segment(summary)
@@ -352,6 +361,7 @@ class FactSumm:
         self,
         source: str,
         summary: str,
+        device: str = "cpu",
     ) -> List[float]:
         """
         Calculate BERTScore
@@ -361,13 +371,14 @@ class FactSumm:
         Args:
             source (str): original source
             summary (str): generated summary
+            device (str): device info
 
         Returns:
             List: (Precision, Recall, F1) BERTScore list
 
         """
         if isinstance(self.bert_score, str):
-            self.bert_score = load_bert_score(self.bert_score)
+            self.bert_score = load_bert_score(self.bert_score, device)
 
         # BUG: When len(source_lines) == 1, bmm error raises
         source_lines = self._segment(source)
@@ -392,6 +403,7 @@ class FactSumm:
         sources: Union[List[str], str],
         summaries: Union[List[str], str],
         verbose: bool = False,
+        device: str = "cpu",
     ) -> Dict:
         if isinstance(sources, str) and isinstance(summaries, str):
             sources = [sources]
@@ -415,6 +427,7 @@ class FactSumm:
                 source,
                 summary,
                 verbose,
+                device,
             )
             fact_scores += fact_score
 
@@ -424,6 +437,7 @@ class FactSumm:
                 source_ents,
                 summary_ents,
                 verbose,
+                device,
             )
             qags_scores += qags_score
 
@@ -435,7 +449,7 @@ class FactSumm:
             rouges[1] += rouge_2
             rouges[2] += rouge_l
 
-            bert_score = self.calculate_bert_score(source, summary)
+            bert_score = self.calculate_bert_score(source, summary, device)
             bert_scores[0] += bert_score[0]
             bert_scores[1] += bert_score[1]
             bert_scores[2] += bert_score[2]
