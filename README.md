@@ -120,6 +120,12 @@ Recall: 0.9141832590103149
 F1: 0.9150083661079407
 ```
 
+You can use the GPU with the `device` argument. If you have a GPU machine, pass `cuda` as an argument (default is `cpu`)
+
+```python
+>>> factsumm(article, summary, device="cuda")
+```
+
 <br>
 
 ## Sub-modules
