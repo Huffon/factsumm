@@ -5,12 +5,13 @@ from rich import print
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
 
-def load_qg(model: str):
+def load_qg(model: str, device: str):
     """
     Load Question Generation model from HuggingFace hub
 
     Args:
         model (str): model name to be loaded
+        device (str): device info
 
     Returns:
         function: question generation function
@@ -20,7 +21,7 @@ def load_qg(model: str):
 
     try:
         tokenizer = AutoTokenizer.from_pretrained(model)
-        model = AutoModelForSeq2SeqLM.from_pretrained(model)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model).to(device)
     except (HTTPError, OSError):
         print("Input model is not supported by HuggingFace Hub")
 
@@ -51,7 +52,7 @@ def load_qg(model: str):
                     max_length=512,
                     truncation=True,
                     return_tensors="pt",
-                )
+                ).to(device)
 
                 outputs = model.generate(**tokens, max_length=64)
 
@@ -69,12 +70,13 @@ def load_qg(model: str):
     return generate_question
 
 
-def load_qa(model: str):
+def load_qa(model: str, device: str):
     """
     Load Question Answering model from HuggingFace hub
 
     Args:
         model (str): model name to be loaded
+        device (str): device info
 
     Returns:
         function: question answering function
@@ -88,6 +90,7 @@ def load_qa(model: str):
             model=model,
             tokenizer=model,
             framework="pt",
+            device=-1 if device == "cpu" else 0,
         )
     except (HTTPError, OSError):
         print("Input model is not supported by HuggingFace Hub")
