@@ -41,7 +41,7 @@ def load_ner(model: str, device: str) -> object:
                 dedup = list()
 
                 for entity in line_result["entities"]:
-                    existence = cache.get(entity["text"], None)
+                    existence = cache.get(entity["text"], False)
 
                     if not existence:
                         dedup.append({
@@ -50,7 +50,7 @@ def load_ner(model: str, device: str) -> object:
                             "start": entity["start_pos"],
                             "end": entity["end_pos"],
                         })
-                        cache[entity["text"]] = None
+                        cache[entity["text"]] = True
 
                 result.append(dedup)
 
