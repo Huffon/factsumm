@@ -183,6 +183,6 @@ def qags_score(source_answers: List, summary_answers: List) -> float:
         summary_answer = summary_answer["prediction"]
         scores.append(f1_score(source_answer, summary_answer))
 
-    if not scores:
+    if len(scores) == 0:
         return 0.0
     return sum(scores) / len(scores)
