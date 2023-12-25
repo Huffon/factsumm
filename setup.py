@@ -1,14 +1,12 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    "transformers>=4.6.0",
-    "pysbd",
-    "bert-score",
-    "dataclasses; python_version<'3.7'",
-    "rich",
-    "sumeval",
-    "stanford_openie",
-    "flair",
+    "transformers==4.36.0",
+    "pysbd==0.3.4",
+    "bert-score==0.3.12",
+    "rich==13.7.0",
+    "sumeval==0.2.2",
+    "stanford-openie==1.3.1",
 ]
 
 VERSION = {}
@@ -33,6 +31,6 @@ setup(
     license="Apache 2.0",
     packages=find_packages(include=["factsumm", "factsumm.*"]),
     install_requires=requirements,
-    python_requires=">=3.6.0",
+    python_requires=">=3.8.0",
     extras_require={},
 )

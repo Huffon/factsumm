@@ -1,7 +1,7 @@
+import logging
 from typing import List
 
 from requests import HTTPError
-from rich import print
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
 
@@ -17,13 +17,13 @@ def load_qg(model: str, device: str):
         function: question generation function
 
     """
-    print("Loading Question Generation Pipeline...")
+    logging.info("Loading Question Generation Pipeline...")
 
     try:
         tokenizer = AutoTokenizer.from_pretrained(model)
         model = AutoModelForSeq2SeqLM.from_pretrained(model).to(device)
     except (HTTPError, OSError):
-        print("Input model is not supported by HuggingFace Hub")
+        logging.warning("Input model is not supported by HuggingFace Hub")
 
     def generate_question(sentences: List[str], total_entities: List):
         """
@@ -37,7 +37,7 @@ def load_qg(model: str, device: str):
             List[Dict] list of question and answer (entity) pairs
 
         """
-        qa_pairs = list()
+        qa_pairs = []
 
         for sentence, line_entities in zip(sentences, total_entities):
             for entity in line_entities:
@@ -82,7 +82,7 @@ def load_qa(model: str, device: str):
         function: question answering function
 
     """
-    print("Loading Question Answering Pipeline...")
+    logging.info("Loading Question Answering Pipeline...")
 
     try:
         qa = pipeline(
@@ -93,7 +93,7 @@ def load_qa(model: str, device: str):
             device=-1 if device == "cpu" else 0,
         )
     except (HTTPError, OSError):
-        print("Input model is not supported by HuggingFace Hub")
+        logging.warning("Input model is not supported by HuggingFace Hub")
 
     def answer_question(context: str, qa_pairs: List):
         """
@@ -104,7 +104,7 @@ def load_qa(model: str, device: str):
             qa_pairs (List): Question & Answer pairs generated from Question Generation pipe
 
         """
-        answers = list()
+        answers = []
         for qa_pair in qa_pairs:
             pred = qa(
                 question=qa_pair["question"],

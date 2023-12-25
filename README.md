@@ -6,23 +6,19 @@
   <a href="https://github.com/huffon/factsumm/issues"><img alt="Issues" src="https://img.shields.io/github/issues/huffon/factsumm" /></a>
 </p>
 
-`FactSumm` is a toolkit that scores *__Factualy Consistency__* for **Abstract Summarization**
+`FactSumm` is a toolkit that scores _**Factualy Consistency**_ for **Abstract Summarization**
 
 Without fine-tuning, you can simply apply a variety of downstream tasks to both `the source article` and `the generated abstractive summary`
 
 ![](assets/triples.png)
 
-For example, by extracting **fact triples** from source articles and generated summaries, we can verify that generated summaries correctly reflect source-based facts ( *See image above* )
-
-As you can guess, this *PoC-ish* project uses a lot of pre-trained modules that require __*super-duper*__ computing resources
-
-So don't blame me, just take it as a concept project 👀
+For example, by extracting **fact triples** from source articles and generated summaries, you can verify that generated summaries correctly reflect source-based facts ( _See image above_ )
 
 <br>
 
 ## Installation
 
-`FactSumm` requires *Java* to be installed in your environment to use **Stanford OpenIE**. With *Java* and *Python 3*, you can install `factsumm` simply using `pip`:
+`FactSumm` requires _Java_ to be installed in your environment to use **Stanford OpenIE**. With _Java_ and _Python 3_ (>= 3.8), you can install `factsumm` simply using `pip`:
 
 ```bash
 pip install factsumm
@@ -130,11 +126,11 @@ You can use the GPU with the `device`. If you want to use GPU, pass `cuda` (defa
 
 ## Sub-modules
 
-From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to score **Factual Consistency level** with *Unsupervised methods*
+From [here](https://arxiv.org/pdf/2104.14839.pdf), you can find various way to score **Factual Consistency level** with _Unsupervised methods_
 
 <br>
 
-### Triple-based Module ( *closed-scheme* )
+### Triple-based Module ( _closed-scheme_ )
 
 ```python
 >>> from factsumm import FactSumm
@@ -212,7 +208,7 @@ QAGS Score: 0.3333333333333333
 
 <br>
 
-### OpenIE-based Module ( *open-scheme* )
+### OpenIE-based Module ( _open-scheme_ )
 
 ```python
 >>> from factsumm import FactSumm

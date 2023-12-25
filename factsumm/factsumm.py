@@ -1,7 +1,7 @@
 import logging
 import os
 from itertools import permutations
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import pysbd
 from rich import print
@@ -15,27 +15,26 @@ from factsumm.utils.utils import Config, qags_score
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 logging.getLogger("transformers").setLevel(logging.ERROR)
-logging.getLogger("flair").setLevel(logging.ERROR)
 
 
 class FactSumm:
 
     def __init__(
         self,
-        ner_model: str = None,
-        rel_model: str = None,
-        qg_model: str = None,
-        qa_model: str = None,
-        bert_score_model: str = None,
+        ner_model: Optional[str] = None,
+        rel_model: Optional[str] = None,
+        qg_model: Optional[str] = None,
+        qa_model: Optional[str] = None,
+        bert_score_model: Optional[str] = None,
     ):
         """
         FactSumm object used to calculate Factual Consistency score of Abstractive Summarization model
 
         Args:
-            ner_model (str, optional): NER model to be used (Flair or HuggingFace). Defaults to None.
-            rel_model (str, optional): RE model to be used (HuggingFace). Defaults to None.
-            qg_model (str, optional): QA model to be used (HuggingFace). Defaults to None.
-            qa_model (str, optional): QG model to be used (HuggingFace). Defaults to None.
+            ner_model (str, optional): Named Entity Recognition model to be used (HuggingFace). Defaults to None.
+            rel_model (str, optional): Relation Extraction model to be used (HuggingFace). Defaults to None.
+            qg_model (str, optional): Question Answering model to be used (HuggingFace). Defaults to None.
+            qa_model (str, optional): Question Genration model to be used (HuggingFace). Defaults to None.
             bert_score_model (str, optional): BERTScore model to be used (HuggingFace). Defaults to None.
 
         """
@@ -43,7 +42,7 @@ class FactSumm:
         self.segmenter = pysbd.Segmenter(language="en", clean=False)
         self.rouge = RougeCalculator(stopwords=True, lang="en")
 
-        # NER, RE, QG, QA models supported by HuggingFace can be used (default can be found in `config.py`)
+        # NER, RE, QG, QA models supported by HuggingFace can be used (default models can be found in `config.py`)
         self.ner = ner_model if ner_model is not None else self.config.NER_MODEL
         self.rel = rel_model if rel_model is not None else self.config.REL_MODEL
         self.qg = qg_model if qg_model is not None else self.config.QG_MODEL
@@ -67,7 +66,7 @@ class FactSumm:
             List: list of permutations
 
         """
-        total_perms = list()
+        total_perms = []
 
         for line, line_entities in zip(lines, total_entities):
             line_perms = list(permutations(line_entities, 2))
@@ -98,7 +97,7 @@ class FactSumm:
 
         """
         perms = self.build_perm(lines, entities)
-        triples = list()
+        triples = []
 
         for perm in perms:
             triples.extend(self.rel(perm))

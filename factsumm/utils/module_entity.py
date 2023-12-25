@@ -1,9 +1,7 @@
+import logging
 from typing import List, Tuple
 
-from flair.data import Sentence
-from flair.models import SequenceTagger
 from requests import HTTPError
-from rich import print
 from transformers import LukeForEntityPairClassification, LukeTokenizer, pipeline
 
 from factsumm.utils.utils import grouped_entities
@@ -21,68 +19,34 @@ def load_ner(model: str, device: str) -> object:
         object: Pipeline-based Named Entity Recognition model
 
     """
-    print("Loading Named Entity Recognition Pipeline...")
+    logging.info("Loading Named Entity Recognition Pipeline...")
 
-    if "flair" in model:
-        try:
-            ner = SequenceTagger.load(model).to(device)
-        except UnboundLocalError:
-            print("Input model is not supported by Flair")
+    try:
+        ner = pipeline(
+            task="ner",
+            model=model,
+            tokenizer=model,
+            ignore_labels=[],
+            framework="pt",
+            device=-1 if device == "cpu" else 0,
+        )
+    except (HTTPError, OSError):
+        logging.warning("Input model is not supported by HuggingFace Hub")
+        raise
 
-        def extract_entities_flair(sentences: List[str]):
-            result = list()
+    def extract_entities_hf(sentences: List[str]):
+        result = []
+        total_entities = ner(sentences)
 
-            for sentence in sentences:
-                sentence = Sentence(sentence)
-                ner.predict(sentence)
-                line_result = sentence.to_dict(tag_type="ner")
+        if isinstance(total_entities[0], dict):
+            total_entities = [total_entities]
 
-                cache = dict()
-                dedup = list()
+        for line_entities in total_entities:
+            result.append(grouped_entities(line_entities))
 
-                for entity in line_result["entities"]:
-                    existence = cache.get(entity["text"], False)
+        return result
 
-                    if not existence:
-                        dedup.append({
-                            "word": entity["text"],
-                            "entity": entity["labels"][0].value,
-                            "start": entity["start_pos"],
-                            "end": entity["end_pos"],
-                        })
-                        cache[entity["text"]] = True
-
-                result.append(dedup)
-
-            return result
-
-        return extract_entities_flair
-    else:
-        try:
-            ner = pipeline(
-                task="ner",
-                model=model,
-                tokenizer=model,
-                ignore_labels=[],
-                framework="pt",
-                device=-1 if device == "cpu" else 0,
-            )
-        except (HTTPError, OSError):
-            print("Input model is not supported by HuggingFace Hub")
-
-        def extract_entities_hf(sentences: List[str]):
-            result = list()
-            total_entities = ner(sentences)
-
-            if isinstance(total_entities[0], dict):
-                total_entities = [total_entities]
-
-            for line_entities in total_entities:
-                result.append(grouped_entities(line_entities))
-
-            return result
-
-        return extract_entities_hf
+    return extract_entities_hf
 
 
 def load_rel(model: str, device: str):
@@ -97,7 +61,7 @@ def load_rel(model: str, device: str):
         function: LUKE-based Relation Extraction function
 
     """
-    print("Loading Relation Extraction Pipeline...")
+    logging.info("Loading Relation Extraction Pipeline...")
 
     try:
         # yapf:disable
@@ -105,7 +69,7 @@ def load_rel(model: str, device: str):
         model = LukeForEntityPairClassification.from_pretrained(model).to(device)
         # yapf:enable
     except (HTTPError, OSError):
-        print("Input model is not supported by HuggingFace Hub")
+        logging.warning("Input model is not supported by HuggingFace Hub")
 
     def extract_relation(sentences: List) -> List[Tuple]:
         """
@@ -120,7 +84,7 @@ def load_rel(model: str, device: str):
             List[Tuple]: list of (head_entity, relation, tail_entity) formatted triples
 
         """
-        triples = list()
+        triples = []
 
         # TODO: batchify
         for sentence in sentences:
@@ -158,7 +122,7 @@ def load_ie():
         function: Open IE annotate function to extract fact triple
 
     """
-    print("Loading Open IE Pipeline...")
+    logging.info("Loading Open IE Pipeline...")
     from openie import StanfordOpenIE
     client = StanfordOpenIE()
     return client.annotate

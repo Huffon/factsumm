@@ -1,5 +1,6 @@
+import logging
+
 from bert_score import BERTScorer
-from rich import print
 
 
 def load_bert_score(model: str, device: str):
@@ -14,7 +15,7 @@ def load_bert_score(model: str, device: str):
         function: BERTScore score function
 
     """
-    print("Loading BERTScore Pipeline...")
+    logging.info("Loading BERTScore Pipeline...")
 
     try:
         scorer = BERTScorer(
@@ -25,4 +26,4 @@ def load_bert_score(model: str, device: str):
         )
         return scorer.score
     except KeyError:
-        print("Input model is not supported by BERTScore")
+        logging.warning("Input model is not supported by BERTScore")

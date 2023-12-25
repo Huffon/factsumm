@@ -1,15 +1,13 @@
 import re
 import string
 from collections import Counter
-from dataclasses import dataclass
 from typing import Dict, List
 
 from transformers import pipeline
 
 
-@dataclass
 class Config:
-    NER_MODEL: str = "flair/ner-english-ontonotes-fast"
+    NER_MODEL: str = "tner/deberta-v3-large-ontonotes5"
     REL_MODEL: str = "studio-ousia/luke-large-finetuned-tacred"
     QG_MODEL: str = "mrm8488/t5-base-finetuned-question-generation-ap"
     QA_MODEL: str = "deepset/roberta-base-squad2"
@@ -34,22 +32,22 @@ def grouped_entities(entities: List[Dict]) -> List:
             entity = entity[2:]
         return entity
 
-    def _append(lst: List, word: str, type: str, start: int, end: int):
+    def _append(lst: List, word: str, entity_type: str, start: int, end: int):
         if prev_word != "":
-            lst.append((word, type, start, end))
+            lst.append((word, entity_type, start, end))
 
-    result = list()
+    result = []
 
     prev_word = entities[0]["word"]
     prev_entity = entities[0]["entity"]
-    prev_type = _remove_prefix(prev_entity)
+    prev_entity_type = _remove_prefix(prev_entity)
     prev_start = entities[0]["start"]
     prev_end = entities[0]["end"]
 
     for pair in entities[1:]:
         word = pair["word"]
         entity = pair["entity"]
-        type = _remove_prefix(entity)
+        entity_type = _remove_prefix(entity)
         start = pair["start"]
         end = pair["end"]
 
@@ -60,30 +58,30 @@ def grouped_entities(entities: List[Dict]) -> List:
 
         if entity == prev_entity:
             if entity == "O":
-                _append(result, prev_word, prev_type, prev_start, prev_end)
-                result.append((word, type))
+                _append(result, prev_word, prev_entity_type, prev_start, prev_end)
+                result.append((word, entity_type))
                 prev_word = ""
                 prev_start = start
                 prev_end = end
             if "I-" in entity:
                 prev_word += f" {word}"
                 prev_end = end
-        elif (entity != prev_entity) and ("I-" in entity) and (type != "O"):
+        elif (entity != prev_entity) and ("I-" in entity) and (entity_type != "O"):
             prev_word += f" {word}"
             prev_end = end
         else:
-            _append(result, prev_word, prev_type, prev_start, prev_end)
+            _append(result, prev_word, prev_entity_type, prev_start, prev_end)
             prev_word = word
-            prev_type = type
+            prev_entity_type = entity_type
             prev_start = start
             prev_end = end
 
         prev_entity = entity
 
-    _append(result, prev_word, prev_type, prev_start, prev_end)
+    _append(result, prev_word, prev_entity_type, prev_start, prev_end)
 
-    cache = dict()
-    dedup = list()
+    cache = {}
+    dedup = []
 
     for pair in result:
         if pair[1] == "O":
@@ -176,7 +174,7 @@ def qags_score(source_answers: List, summary_answers: List) -> float:
         summary_answers (List): summary answers selected based on generated summary
 
     """
-    scores = list()
+    scores = []
 
     for source_answer, summary_answer in zip(source_answers, summary_answers):
         source_answer = source_answer["prediction"]
