@@ -4,8 +4,6 @@ from typing import List, Tuple
 from requests import HTTPError
 from transformers import LukeForEntityPairClassification, LukeTokenizer, pipeline
 
-from factsumm.utils.utils import grouped_entities
-
 
 def load_ner(model: str, device: str) -> object:
     """
@@ -29,24 +27,22 @@ def load_ner(model: str, device: str) -> object:
             ignore_labels=[],
             framework="pt",
             device=-1 if device == "cpu" else 0,
+            aggregation_strategy="simple",
         )
     except (HTTPError, OSError):
         logging.warning("Input model is not supported by HuggingFace Hub")
         raise
 
-    def extract_entities_hf(sentences: List[str]):
-        result = []
+    def extract_entities(sentences: List[str]):
         total_entities = ner(sentences)
 
-        if isinstance(total_entities[0], dict):
-            total_entities = [total_entities]
-
+        result = []
         for line_entities in total_entities:
-            result.append(grouped_entities(line_entities))
+            result.append([entity for entity in line_entities if entity["entity_group"] != "O"])
 
         return result
 
-    return extract_entities_hf
+    return extract_entities
 
 
 def load_rel(model: str, device: str):

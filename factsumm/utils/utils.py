@@ -1,7 +1,7 @@
 import re
 import string
 from collections import Counter
-from typing import Dict, List
+from typing import List
 
 from transformers import pipeline
 
@@ -12,89 +12,6 @@ class Config:
     QG_MODEL: str = "mrm8488/t5-base-finetuned-question-generation-ap"
     QA_MODEL: str = "deepset/roberta-base-squad2"
     SUMM_MODEL: str = "sshleifer/distilbart-cnn-12-6"
-
-
-def grouped_entities(entities: List[Dict]) -> List:
-    """
-    Group entities to concatenate BIO
-
-    Args:
-        entities (List[Dict]): list of inference entities
-
-    Returns:
-        List[Tuple]: list of grouped BIO scheme entities
-
-    """
-
-    def _remove_prefix(entity: str) -> str:
-        if "-" in entity:
-            entity = entity[2:]
-        return entity
-
-    def _append(lst: List, word: str, entity_type: str, start: int, end: int):
-        if prev_word != "":
-            lst.append((word, entity_type, start, end))
-
-    result = []
-
-    prev_word = entities[0]["word"]
-    prev_entity = entities[0]["entity"]
-    prev_entity_type = _remove_prefix(prev_entity)
-    prev_start = entities[0]["start"]
-    prev_end = entities[0]["end"]
-
-    for pair in entities[1:]:
-        word = pair["word"]
-        entity = pair["entity"]
-        entity_type = _remove_prefix(entity)
-        start = pair["start"]
-        end = pair["end"]
-
-        if "##" in word:
-            prev_word += word
-            prev_end = end
-            continue
-
-        if entity == prev_entity:
-            if entity == "O":
-                _append(result, prev_word, prev_entity_type, prev_start, prev_end)
-                result.append((word, entity_type))
-                prev_word = ""
-                prev_start = start
-                prev_end = end
-            if "I-" in entity:
-                prev_word += f" {word}"
-                prev_end = end
-        elif (entity != prev_entity) and ("I-" in entity) and (entity_type != "O"):
-            prev_word += f" {word}"
-            prev_end = end
-        else:
-            _append(result, prev_word, prev_entity_type, prev_start, prev_end)
-            prev_word = word
-            prev_entity_type = entity_type
-            prev_start = start
-            prev_end = end
-
-        prev_entity = entity
-
-    _append(result, prev_word, prev_entity_type, prev_start, prev_end)
-
-    cache = {}
-    dedup = []
-
-    for pair in result:
-        if pair[1] == "O":
-            continue
-
-        if pair[0] not in cache:
-            dedup.append({
-                "word": pair[0].replace("##", ""),
-                "entity": pair[1],
-                "start": pair[2],
-                "end": pair[3]
-            })
-            cache[pair[0]] = None
-    return dedup
 
 
 def load_summarizer(model: str) -> object:
@@ -162,7 +79,7 @@ def f1_score(gold_answer: str, pred_answer: str) -> float:
     return f1
 
 
-def qags_score(source_answers: List, summary_answers: List) -> float:
+def score_qags(source_answers: List, summary_answers: List) -> float:
     """
     Caculate QAGS Score
 

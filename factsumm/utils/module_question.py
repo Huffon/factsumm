@@ -40,8 +40,11 @@ def load_qg(model: str, device: str):
         qa_pairs = []
 
         for sentence, line_entities in zip(sentences, total_entities):
+            dedup = {}
             for entity in line_entities:
                 entity = entity["word"]
+                if entity in dedup:
+                    continue
 
                 template = f"answer: {entity}  context: {sentence} </s>"
 
@@ -64,6 +67,8 @@ def load_qg(model: str, device: str):
                     "question": question,
                     "answer": entity,
                 })
+
+                dedup[entity] = True
 
         return qa_pairs
 

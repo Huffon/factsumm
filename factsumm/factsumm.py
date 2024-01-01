@@ -9,7 +9,7 @@ from sumeval.metrics.rouge import RougeCalculator
 from factsumm.utils.module_entity import load_ner, load_rel
 from factsumm.utils.module_question import load_qa, load_qg
 from factsumm.utils.module_sentence import load_bert_score
-from factsumm.utils.utils import Config, qags_score
+from factsumm.utils.utils import Config, score_qags
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -99,7 +99,7 @@ class FactSumm:
         triples = []
 
         for perm, entity in zip(perms, entities):
-            entity_key = {ent["word"].replace("▁", ""): ent["entity"] for ent in entity}
+            entity_key = {ent["word"]: ent["entity_group"] for ent in entity}
             facts = self.rel(perm)
             filtered_facts = []
 
@@ -108,6 +108,9 @@ class FactSumm:
 
                 head = head.strip()
                 tail = tail.strip()
+
+                if head == tail:
+                    continue
 
                 head_entity_type = entity_key.get(head, None)
                 tail_entity_type = entity_key.get(tail, None)
@@ -143,7 +146,14 @@ class FactSumm:
     def _print_entities(self, mode: str, total_entities: List[List[Dict]]):
         logging.info("<%s Entities>", mode.capitalize())
         for i, line_entities in enumerate(total_entities):
-            logging.info("Line No.%s: [%s]", i+1, [(entity["word"].replace("▁", ""), entity["entity"]) for entity in line_entities])
+            printable_elements = []
+            dedup = {}
+            for entity in line_entities:
+                if entity["word"] not in dedup:
+                    printable_elements.append((entity["word"], entity["entity_group"]))
+                    dedup[entity["word"]] = True
+
+            logging.info("Line No.%s: [%s]", i+1, printable_elements)
         logging.info("")
 
     def calculate_rouge(
@@ -319,7 +329,7 @@ class FactSumm:
             self._print_qas("source", source_answers)
             self._print_qas("summary", summary_answers)
 
-        qa_score = qags_score(source_answers, summary_answers)
+        qa_score = score_qags(source_answers, summary_answers)
         logging.info("QAGS Score: %s\n", qa_score)
 
         return qa_score
@@ -329,7 +339,7 @@ class FactSumm:
         source: str,
         summary: str,
         device: str = "cpu",
-    ) -> Dict[str, float]:
+    ) -> Tuple[float, float, float]:
         """
         Calculate BERTScore
 
@@ -341,7 +351,7 @@ class FactSumm:
             device (str): device info
 
         Returns:
-            Dict: (Precision, Recall, F1) BERTScore dictionary
+            Tuple[float]: (Precision, Recall, F1) BERTScore tuple
 
         """
         if self.bert_score is None:
@@ -350,26 +360,25 @@ class FactSumm:
         source_lines = self._segment_sentence(source)
         summary_lines = self._segment_sentence(summary)
 
-        scores = {
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-        }
+        total_precision = 0.0
+        total_recall = 0.0
+        total_f1 = 0.0
 
         for summary_line in summary_lines:
             precision, recall, f1 = self.bert_score([summary_line], [source_lines])
-            scores["precision"] += precision.item()
-            scores["recall"] += recall.item()
-            scores["f1"] += f1.item()
+
+            total_precision += precision.item()
+            total_recall += recall.item()
+            total_f1 += f1.item()
 
         if len(summary_lines) > 1:
-            scores["precision"] /= len(summary_lines)
-            scores["recall"] /= len(summary_lines)
-            scores["f1"] /= len(summary_lines)
+            total_precision /= len(summary_lines)
+            total_recall /= len(summary_lines)
+            total_f1 /= len(summary_lines)
 
-        logging.info("<BERTScore Score>\nPrecision: %s\nRecall: %s\nF1: %s", scores["precision"], scores["recall"], scores["f1"])
+        logging.info("<BERTScore Score>\nPrecision: %s\nRecall: %s\nF1: %s", total_precision, total_recall, total_f1)
 
-        return scores
+        return total_precision, total_recall, total_f1
 
     def __call__(
         self,
@@ -378,12 +387,14 @@ class FactSumm:
         verbose: bool = False,
         device: str = "cpu",
     ) -> Dict:
-        if isinstance(sources, str) and isinstance(summaries, str):
+        if isinstance(sources, str):
             sources = [sources]
+
+        if  isinstance(summaries, str):
             summaries = [summaries]
 
         if len(sources) != len(summaries):
-            raise ValueError("`sources` and `summaries` must have the same number of elements!")
+            raise ValueError("`sources` and `summaries` should have the same number of elements!")
 
         num_pairs = len(sources)
 
@@ -424,11 +435,26 @@ class FactSumm:
             rouge_scores["rouge-2"] += rouge_2
             rouge_scores["rouge-l"] += rouge_l
 
-            bert_scores = self.calculate_bert_score(source, summary, device)
+            precision, recall, f1 = self.calculate_bert_score(source, summary, device)
+            bert_scores["precision"] += precision
+            bert_scores["recall"] += recall
+            bert_scores["f1"] += f1
+
+        if num_pairs > 1:
+            fact_scores /= num_pairs
+            qags_scores /= num_pairs
+
+            rouge_scores["rouge-1"] /= num_pairs
+            rouge_scores["rouge-2"] /= num_pairs
+            rouge_scores["rouge-l"] /= num_pairs
+
+            bert_scores["precision"] /= num_pairs
+            bert_scores["recall"] /= num_pairs
+            bert_scores["f1"] /= num_pairs
 
         return {
-            "fact_score": fact_scores / num_pairs,
-            "qa_score": qags_scores / num_pairs,
+            "fact_score": fact_scores,
+            "qa_score": qags_scores,
             "rouge": rouge_scores,
             "bert_score": bert_scores,
         }
