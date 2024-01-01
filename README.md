@@ -96,16 +96,6 @@ Answers based on SUMMARY (Questions are generated from Summary)
 
 QAGS Score: 0.3333333333333333
 
-SOURCE Triples
-('Messi', 'is', 'Argentine')
-('Messi', 'is', 'professional')
-
-SUMMARY Triples
-('Messi', 'is', 'Spanish')
-('Messi', 'is', 'professional')
-
-Triple Score: 0.5
-
 Avg. ROUGE-1: 0.4415584415584415
 Avg. ROUGE-2: 0.3287671232876712
 Avg. ROUGE-L: 0.4415584415584415

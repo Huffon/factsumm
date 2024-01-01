@@ -362,6 +362,11 @@ class FactSumm:
             scores["recall"] += recall.item()
             scores["f1"] += f1.item()
 
+        if len(summary_lines) > 1:
+            scores["precision"] /= len(summary_lines)
+            scores["recall"] /= len(summary_lines)
+            scores["f1"] /= len(summary_lines)
+
         logging.info("<BERTScore Score>\nPrecision: %s\nRecall: %s\nF1: %s", scores["precision"], scores["recall"], scores["f1"])
 
         return scores
