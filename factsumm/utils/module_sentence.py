@@ -3,7 +3,7 @@ import logging
 from bert_score import BERTScorer
 
 
-def load_bert_score(model: str, device: str):
+def load_bert_score(device: str):
     """
     Load BERTScore model from HuggingFace hub
 
@@ -15,13 +15,11 @@ def load_bert_score(model: str, device: str):
         function: BERTScore score function
 
     """
-    logging.info("Loading BERTScore Pipeline...")
+    logging.debug("Loading BERTScore Pipeline...")
 
     try:
         scorer = BERTScorer(
-            model_type=model,
             lang="en",
-            rescale_with_baseline=True,
             device=device,
         )
         return scorer.score

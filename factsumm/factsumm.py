@@ -47,8 +47,7 @@ class FactSumm:
         self.rel = rel_model if rel_model is not None else self.config.REL_MODEL
         self.qg = qg_model if qg_model is not None else self.config.QG_MODEL
         self.qa = qa_model if qa_model is not None else self.config.QA_MODEL
-        self.bert_score = bert_score_model if bert_score_model is not None else self.config.BERT_SCORE_MODEL
-        self.ie = None
+        self.bert_score = bert_score_model
 
     def build_perm(
         self,
@@ -99,8 +98,32 @@ class FactSumm:
         perms = self.build_perm(lines, entities)
         triples = []
 
-        for perm in perms:
-            triples.extend(self.rel(perm))
+        for perm, entity in zip(perms, entities):
+            entity_key = {ent["word"].replace("▁", ""): ent["entity"] for ent in entity}
+            facts = self.rel(perm)
+            filtered_facts = []
+
+            for fact in facts:
+                head, relation, tail = fact
+
+                head = head.strip()
+                tail = tail.strip()
+
+                head_entity_type = entity_key.get(head, None)
+                tail_entity_type = entity_key.get(tail, None)
+
+                if head_entity_type is not None and head_entity_type == "PERSON" and not relation.startswith("per:"):
+                    continue
+
+                if head_entity_type is not None and head_entity_type != "PERSON" and relation.startswith("per:"):
+                    continue
+
+                if tail_entity_type is not None and tail_entity_type != "PERSON" and "members" in relation:
+                    continue
+
+                filtered_facts.append(tuple([head, relation, tail]))
+
+            triples.extend(filtered_facts)
 
         return set(triples)
 
@@ -301,19 +324,12 @@ class FactSumm:
 
         return qa_score
 
-    def _print_triples(self, mode: str, triples: Set):
-        logging.info("%s Triples", mode.capitalize())
-        for triple in triples:
-            logging.info(triple)
-
-
-
     def calculate_bert_score(
         self,
         source: str,
         summary: str,
         device: str = "cpu",
-    ) -> List[float]:
+    ) -> Dict[str, float]:
         """
         Calculate BERTScore
 
@@ -325,27 +341,30 @@ class FactSumm:
             device (str): device info
 
         Returns:
-            List: (Precision, Recall, F1) BERTScore list
+            Dict: (Precision, Recall, F1) BERTScore dictionary
 
         """
-        if isinstance(self.bert_score, str):
-            self.bert_score = load_bert_score(self.bert_score, device)
+        if self.bert_score is None:
+            self.bert_score = load_bert_score(device)
 
-        # BUG: When len(source_lines) == 1, bmm error raises
         source_lines = self._segment_sentence(source)
-        summary_lines = [summary, "dummy"]
+        summary_lines = self._segment_sentence(summary)
 
-        scores = self.bert_score(summary_lines, source_lines)
-        filtered_scores = []
+        scores = {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+        }
 
-        for score in scores:
-            score = score.tolist()
-            score.pop(-1)
-            filtered_scores.append(sum(score) / len(score))
+        for summary_line in summary_lines:
+            precision, recall, f1 = self.bert_score([summary_line], [source_lines])
+            scores["precision"] += precision.item()
+            scores["recall"] += recall.item()
+            scores["f1"] += f1.item()
 
-        logging.info("<BERTScore Score>\nPrecision: %s\nRecall: %s\nF1: %s", filtered_scores[0], filtered_scores[1], filtered_scores[1])
+        logging.info("<BERTScore Score>\nPrecision: %s\nRecall: %s\nF1: %s", scores["precision"], scores["recall"], scores["f1"])
 
-        return filtered_scores
+        return scores
 
     def __call__(
         self,
@@ -365,8 +384,16 @@ class FactSumm:
 
         fact_scores = 0
         qags_scores = 0
-        rouges = [0, 0, 0]
-        bert_scores = [0, 0, 0]
+        rouge_scores = {
+            "rouge-1": 0.0,
+            "rouge-2": 0.0,
+            "rouge-l": 0.0,
+        }
+        bert_scores = {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+        }
 
         for source, summary in zip(sources, summaries):
             source_ents, summary_ents, fact_score = self.extract_facts(
@@ -388,26 +415,15 @@ class FactSumm:
             qags_scores += qags_score
 
             rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
-            rouges[0] += rouge_1
-            rouges[1] += rouge_2
-            rouges[2] += rouge_l
+            rouge_scores["rouge-1"] += rouge_1
+            rouge_scores["rouge-2"] += rouge_2
+            rouge_scores["rouge-l"] += rouge_l
 
-            bert_score = self.calculate_bert_score(source, summary, device)
-            bert_scores[0] += bert_score[0]
-            bert_scores[1] += bert_score[1]
-            bert_scores[2] += bert_score[2]
+            bert_scores = self.calculate_bert_score(source, summary, device)
 
         return {
             "fact_score": fact_scores / num_pairs,
             "qa_score": qags_scores / num_pairs,
-            "rouge": (
-                rouges[0] / num_pairs,
-                rouges[1] / num_pairs,
-                rouges[2] / num_pairs,
-            ),
-            "bert_score": {
-                "precision": bert_scores[0],
-                "recall": bert_scores[1],
-                "f1": bert_scores[2],
-            },
+            "rouge": rouge_scores,
+            "bert_score": bert_scores,
         }

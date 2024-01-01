@@ -19,7 +19,7 @@ def load_ner(model: str, device: str) -> object:
         object: Pipeline-based Named Entity Recognition model
 
     """
-    logging.info("Loading Named Entity Recognition Pipeline...")
+    logging.debug("Loading Named Entity Recognition Pipeline...")
 
     try:
         ner = pipeline(
@@ -61,7 +61,7 @@ def load_rel(model: str, device: str):
         function: LUKE-based Relation Extraction function
 
     """
-    logging.info("Loading Relation Extraction Pipeline...")
+    logging.debug("Loading Relation Extraction Pipeline...")
 
     try:
         # yapf:disable

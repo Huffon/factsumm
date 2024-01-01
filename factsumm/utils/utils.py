@@ -12,7 +12,6 @@ class Config:
     QG_MODEL: str = "mrm8488/t5-base-finetuned-question-generation-ap"
     QA_MODEL: str = "deepset/roberta-base-squad2"
     SUMM_MODEL: str = "sshleifer/distilbart-cnn-12-6"
-    BERT_SCORE_MODEL: str = "microsoft/deberta-base-mnli"
 
 
 def grouped_entities(entities: List[Dict]) -> List:

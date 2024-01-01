@@ -17,7 +17,7 @@ def load_qg(model: str, device: str):
         function: question generation function
 
     """
-    logging.info("Loading Question Generation Pipeline...")
+    logging.debug("Loading Question Generation Pipeline...")
 
     try:
         tokenizer = AutoTokenizer.from_pretrained(model)
@@ -82,7 +82,7 @@ def load_qa(model: str, device: str):
         function: question answering function
 
     """
-    logging.info("Loading Question Answering Pipeline...")
+    logging.debug("Loading Question Answering Pipeline...")
 
     try:
         qa = pipeline(
