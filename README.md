@@ -18,7 +18,7 @@ For example, by extracting **fact triples** from source articles and generated s
 
 ## Installation
 
-`FactSumm` requires _Java_ to be installed in your environment to use **Stanford OpenIE**. With _Java_ and _Python 3_ (>= 3.8), you can install `factsumm` simply using `pip`:
+With and _Python 3_ (>= 3.8), you can install `factsumm` simply using `pip`:
 
 ```bash
 pip install factsumm
@@ -205,31 +205,6 @@ Answers based on SUMMARY (Questions are generated from Summary)
 
 QAGS Score: 0.3333333333333333
 ```
-
-<br>
-
-### OpenIE-based Module ( _open-scheme_ )
-
-```python
->>> from factsumm import FactSumm
->>> factsumm = FactSumm()
->>> factsumm.extract_triples(article, summary, verbose=True)
-SOURCE Triples
-('Messi', 'is', 'Argentine')
-('Messi', 'is', 'professional')
-
-SUMMARY Triples
-('Messi', 'is', 'Spanish')
-('Messi', 'is', 'professional')
-
-Triple Score: 0.5
-```
-
-Stanford OpenIE can extract relationships from raw strings. But it's important to note that it's based on the open scheme, not the closed scheme (like `Triple-based Module`).
-
-For example, from `"Obama was born in Hawaii"`, OpenIE extracts (Obama, born in Hawaii). However, from `"Hawaii is the birthplace of Obama"`, it extracts (Hawaii, is the birthplace of, Obama). In common sense, the triples extracted from the two sentences should be identical, but OpenIE can't recognize that they are the same since it is based on an open scheme.
-
-So the score for this module may be unstable.
 
 <br>
 

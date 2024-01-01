@@ -1,19 +1,19 @@
-import logging
 import os
+import logging
 from itertools import permutations
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import pysbd
-from rich import print
 from sumeval.metrics.rouge import RougeCalculator
 
-from factsumm.utils.module_entity import load_ie, load_ner, load_rel
+from factsumm.utils.module_entity import load_ner, load_rel
 from factsumm.utils.module_question import load_qa, load_qg
 from factsumm.utils.module_sentence import load_bert_score
 from factsumm.utils.utils import Config, qags_score
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+logging.basicConfig(format="%(message)s", level=logging.INFO)
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
 
@@ -39,7 +39,7 @@ class FactSumm:
 
         """
         self.config = Config()
-        self.segmenter = pysbd.Segmenter(language="en", clean=False)
+        self.sentence_segmenter = pysbd.Segmenter(language="en", clean=False)
         self.rouge = RougeCalculator(stopwords=True, lang="en")
 
         # NER, RE, QG, QA models supported by HuggingFace can be used (default models can be found in `config.py`)
@@ -104,7 +104,7 @@ class FactSumm:
 
         return set(triples)
 
-    def _segment(self, text: str) -> List[str]:
+    def _segment_sentence(self, text: str) -> List[str]:
         """
         Segment input text into (possibly) multiple sentences
 
@@ -115,15 +115,13 @@ class FactSumm:
             List[str]: list of segmented lines
 
         """
-        return [line.strip() for line in self.segmenter.segment(text)]
+        return [line.strip() for line in self.sentence_segmenter.segment(text)]
 
     def _print_entities(self, mode: str, total_entities: List[List[Dict]]):
-        # yapf:disable
-        print(f"{mode.upper()} Entities")
+        logging.info("<%s Entities>", mode.capitalize())
         for i, line_entities in enumerate(total_entities):
-            print(f'{i+1}: {[(entity["word"], entity["entity"]) for entity in line_entities]}')
-        print()
-        # yapf:enable
+            logging.info("Line No.%s: [%s]", i+1, [(entity["word"].replace("▁", ""), entity["entity"]) for entity in line_entities])
+        logging.info("")
 
     def calculate_rouge(
         self,
@@ -141,22 +139,20 @@ class FactSumm:
             Tuple: (ROUGE-1, ROUGE-2, ROUGE-L) tuple
 
         """
-        source_lines = self._segment(source)
+        source_lines = self._segment_sentence(source)
 
         rouge_1 = self.rouge.rouge_n(summary, source_lines, 1)
         rouge_2 = self.rouge.rouge_n(summary, source_lines, 2)
         rouge_l = self.rouge.rouge_l(summary, source_lines)
 
-        print(
-            f"Avg. ROUGE-1: {rouge_1}\nAvg. ROUGE-2: {rouge_2}\nAvg. ROUGE-L: {rouge_l}"
-        )
+        logging.info("Avg. ROUGE-1: %s\nAvg. ROUGE-2: %s\nAvg. ROUGE-L: %s", rouge_1, rouge_2, rouge_l)
         return rouge_1, rouge_2, rouge_l
 
     def _print_facts(self, mode: str, facts: Set[Tuple]):
-        print(f"{mode.upper()} Facts")
+        logging.info("<%s Facts>", mode.capitalize())
         for fact in facts:
-            print(fact)
-        print()
+            logging.info(fact)
+        logging.info("")
 
     def _filter_out(self, sources: Set, summaries: Set) -> Tuple[Set, Set]:
         """
@@ -202,20 +198,22 @@ class FactSumm:
             device (str): device info
 
         """
-        if isinstance(self.ner, str) and isinstance(self.rel, str):
+        if isinstance(self.ner, str):
             self.ner = load_ner(self.ner, device)
+
+        if isinstance(self.rel, str):
             self.rel = load_rel(self.rel, device)
 
-        source_lines = self._segment(source)
-        summary_lines = self._segment(summary)
+        source_lines = self._segment_sentence(source)
+        summary_lines = self._segment_sentence(summary)
 
-        # extract per-line entities
-        source_ents = self.ner(source_lines)
-        summary_ents = self.ner(summary_lines)
+        # extract per-line named entities
+        source_entities = self.ner(source_lines)
+        summary_entities = self.ner(summary_lines)
 
         # extract entity-based triple: (head, relation, tail)
-        source_facts = self.get_facts(source_lines, source_ents)
-        summary_facts = self.get_facts(summary_lines, summary_ents)
+        source_facts = self.get_facts(source_lines, source_entities)
+        summary_facts = self.get_facts(summary_lines, summary_entities)
 
         # filter out some facts
         source_facts, summary_facts = self._filter_out(
@@ -227,8 +225,8 @@ class FactSumm:
         diff_facts = summary_facts.difference(source_facts)
 
         if verbose:
-            self._print_entities("source", source_ents)
-            self._print_entities("summary", summary_ents)
+            self._print_entities("source", source_entities)
+            self._print_entities("summary", summary_entities)
 
             self._print_facts("source", source_facts)
             self._print_facts("summary", summary_facts)
@@ -240,17 +238,15 @@ class FactSumm:
             fact_score = 0.0
         else:
             fact_score = len(common_facts) / len(summary_facts)
-        print(f"Fact Score: {fact_score}")
+        logging.info("Fact Score: %s", fact_score)
 
-        return source_ents, summary_ents, fact_score
+        return source_entities, summary_entities, fact_score
 
     def _print_qas(self, mode: str, questions: List[Dict]):
-        # yapf:disable
-        print(f"Answers based on {mode.upper()} (Questions are generated from Summary)")
+        logging.info("Answers based on %s (Questions are generated from Summary)", mode.capitalize())
         for question in questions:
-            print(f"[Q] {question['question']}\t[Pred] {question['prediction']}")
-        print()
-        # yapf:enable
+            logging.info("[Q] %s\t[Pred] %s", question["question"], question["prediction"])
+        logging.info("")
 
     def extract_qas(
         self,
@@ -282,8 +278,8 @@ class FactSumm:
         if isinstance(self.ner, str):
             self.ner = load_ner(self.ner, device)
 
-        source_lines = self._segment(source)
-        summary_lines = self._segment(summary)
+        source_lines = self._segment_sentence(source)
+        summary_lines = self._segment_sentence(summary)
 
         if source_ents is None:
             source_ents = self.ner(source_lines)
@@ -301,60 +297,16 @@ class FactSumm:
             self._print_qas("summary", summary_answers)
 
         qa_score = qags_score(source_answers, summary_answers)
-        print(f"QAGS Score: {qa_score}\n")
+        logging.info("QAGS Score: %s\n", qa_score)
 
         return qa_score
 
     def _print_triples(self, mode: str, triples: Set):
-        print(f"{mode.upper()} Triples")
+        logging.info("%s Triples", mode.capitalize())
         for triple in triples:
-            print(triple)
-        print()
+            logging.info(triple)
 
-    def extract_triples(self, source: str, summary: str, verbose: bool = False):
-        """
-        Extract OpenIE based fact triples
 
-        Args:
-            source (str): original source
-            summary (str): generated summary
-            verbose (bool, optional): print verbose option. Defaults to False.
-
-        """
-        if self.ie is None:
-            self.ie = load_ie()
-
-        source_triples = {(
-            triple["subject"],
-            triple["relation"],
-            triple["object"],
-        ) for triple in self.ie(source)}
-
-        summary_triples = {(
-            triple["subject"],
-            triple["relation"],
-            triple["object"],
-        ) for triple in self.ie(summary)}
-
-        source_triples, summary_triples = self._filter_out(
-            source_triples,
-            summary_triples,
-        )
-
-        if verbose:
-            self._print_triples("source", source_triples)
-            self._print_triples("summary", summary_triples)
-
-        common_triples = summary_triples.intersection(source_triples)
-
-        if not summary_triples:
-            triple_score = 0.0
-        else:
-            triple_score = len(common_triples) / len(summary_triples)
-
-        print(f"Triple Score: {triple_score}\n")
-
-        return triple_score
 
     def calculate_bert_score(
         self,
@@ -380,20 +332,18 @@ class FactSumm:
             self.bert_score = load_bert_score(self.bert_score, device)
 
         # BUG: When len(source_lines) == 1, bmm error raises
-        source_lines = self._segment(source)
+        source_lines = self._segment_sentence(source)
         summary_lines = [summary, "dummy"]
 
         scores = self.bert_score(summary_lines, source_lines)
-        filtered_scores = list()
+        filtered_scores = []
 
         for score in scores:
             score = score.tolist()
             score.pop(-1)
             filtered_scores.append(sum(score) / len(score))
 
-        print(
-            f"BERTScore Score\nPrecision: {filtered_scores[0]}\nRecall: {filtered_scores[1]}\nF1: {filtered_scores[2]}"
-        )
+        logging.info("<BERTScore Score>\nPrecision: %s\nRecall: %s\nF1: %s", filtered_scores[0], filtered_scores[1], filtered_scores[1])
 
         return filtered_scores
 
@@ -409,15 +359,12 @@ class FactSumm:
             summaries = [summaries]
 
         if len(sources) != len(summaries):
-            # yapf:disable
             raise ValueError("`sources` and `summaries` must have the same number of elements!")
-            # yapf:enable
 
         num_pairs = len(sources)
 
         fact_scores = 0
         qags_scores = 0
-        triple_scores = 0
         rouges = [0, 0, 0]
         bert_scores = [0, 0, 0]
 
@@ -440,9 +387,6 @@ class FactSumm:
             )
             qags_scores += qags_score
 
-            triple_score = self.extract_triples(source, summary, verbose)
-            triple_scores += triple_score
-
             rouge_1, rouge_2, rouge_l = self.calculate_rouge(source, summary)
             rouges[0] += rouge_1
             rouges[1] += rouge_2
@@ -456,7 +400,6 @@ class FactSumm:
         return {
             "fact_score": fact_scores / num_pairs,
             "qa_score": qags_scores / num_pairs,
-            "triple_score": triple_scores / num_pairs,
             "rouge": (
                 rouges[0] / num_pairs,
                 rouges[1] / num_pairs,

@@ -22,3 +22,7 @@ class TestUtils(unittest.TestCase):
         entities = ner(article)
 
         grouped = grouped_entities(entities)
+
+
+if __name__ == "__main__":
+    unittest.main()
