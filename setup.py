@@ -5,8 +5,9 @@ requirements = [
     "pysbd==0.3.4",
     "bert-score==0.3.12",
     "rich==13.7.0",
+    "protobuf==4.25.1",
+    "sentencepiece==0.1.99",
     "sumeval==0.2.2",
-    "stanford-openie==1.3.1",
 ]
 
 VERSION = {}
